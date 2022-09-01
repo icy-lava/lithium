@@ -1,4 +1,4 @@
-import format from string.format
+import format from string
 
 with setmetatable {}, {__index: _G}
 	.pack = table.pack or (...) -> {n: select('#', ...), ...}
@@ -6,7 +6,8 @@ with setmetatable {}, {__index: _G}
 	
 	ripairsIterator = (t, i) ->
 		return nil if i == 1
-		i - 1, t[i - 1]
+		i = i - 1
+		i, t[i]
 	.ripairs = (t) -> ripairsIterator, t, #t + 1
 	
 	keysIterator = (t, k) ->

@@ -1,6 +1,13 @@
 import format from string
 
 with setmetatable {}, {__index: _G}
+	.noop = ->
+	.index = (t, ...) ->
+		for i = 1, select '#', ...
+			return nil unless type(t) == 'table'
+			t = t[select(i, ...)]
+		return t
+	
 	.pack = table.pack or (...) -> {n: select('#', ...), ...}
 	.unpack = table.unpack or unpack
 	

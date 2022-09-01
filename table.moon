@@ -11,4 +11,5 @@ with setmetatable {
 	.clone = (value) ->
 		if type(value) != 'table' then return value
 		return {k, .clone v for k, v in pairs value}
+	.invert = (t) -> {v, k for k, v in pairs t}
 	.isEmpty = (t) -> not next(t)

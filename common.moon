@@ -2,6 +2,7 @@ import format from string
 
 with setmetatable {}, {__index: _G}
 	.noop = ->
+	.empty = {}
 	.index = (t, ...) ->
 		for i = 1, select '#', ...
 			return nil unless type(t) == 'table'
@@ -19,7 +20,7 @@ with setmetatable {}, {__index: _G}
 	
 	keysIterator = (t, k) ->
 		k = next(t, k)
-		k
+		return k
 	.keys = (t) -> keysIterator, t
 	
 	.array = (...) -> [v for v in ...]

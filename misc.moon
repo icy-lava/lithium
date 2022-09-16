@@ -1,4 +1,4 @@
-import pack from require 'lithium.common'
+import pack from require 'lithium.shared'
 import concat from table
 
 -- We'll load inspect only if we need it, since we don't want to force the user to have it

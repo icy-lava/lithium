@@ -1,6 +1,6 @@
 import insert from table
 import wrap, yield from coroutine
-import array from require 'lithium.common'
+import array from require 'lithium.shared'
 
 with setmetatable {}, {__index: string}
 	delimIterator = (str, delim, plain) ->

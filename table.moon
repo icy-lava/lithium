@@ -1,4 +1,4 @@
-import pack, unpack, ripairs, keys, array, empty from require 'lithium.common'
+import pack, unpack, ripairs, keys, array, empty from require 'lithium.shared'
 import wrap, yield from coroutine
 local inspect
 

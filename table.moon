@@ -1,10 +1,12 @@
-import pack, unpack, ripairs, keys, array, empty from require 'lithium.shared'
+import pack, unpack, index, set, ripairs, keys, array, empty from require 'lithium.shared'
 import wrap, yield from coroutine
 local inspect
 
 with setmetatable {
 	:pack
 	:unpack
+	:index
+	:set
 	:ripairs
 	:keys
 	:array
@@ -12,7 +14,7 @@ with setmetatable {
 }, {__index: table}
 	.copy = (t) -> {k, v for k, v in pairs t}
 	.clone = (value) ->
-		if type(value) != 'table' then return value
+		return value if type(value) != 'table'
 		return {k, .clone v for k, v in pairs value}
 	.invert = (t) -> {v, k for k, v in pairs t}
 	.isEmpty = (t) -> not next(t)

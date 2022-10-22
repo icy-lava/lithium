@@ -10,12 +10,15 @@ with setmetatable {}, {__index: _G}
 		return t
 	.set = (t, ...) ->
 		argLen = select '#', ...
+		assert argLen > 0
+		if argLen == 1 then return (...)
 		for i = 1, argLen - 2
 			key = select(i, ...)
 			t[key] = {} if t[key] == nil
 			t = t[key]
 			assert type(t) != 'string', 'tried to index a string, but it\'s not allowed'
 		t[select(argLen - 1, ...)] = select(argLen, ...)
+		return t
 	
 	.pack = table.pack or (...) -> {n: select('#', ...), ...}
 	.unpack = table.unpack or unpack

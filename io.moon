@@ -1,3 +1,5 @@
+import lines from require 'lithium.string'
+
 with setmetatable {}, {__index: io}
 	.readBytes = (path, bytes = -1) ->
 		assert path
@@ -17,3 +19,33 @@ with setmetatable {}, {__index: io}
 			\close!
 			
 			return data
+	
+	stringFile = with {}
+		.write = (...) =>
+			len = select '#', ...
+			for i = 1, len
+				value = select i, ...
+				switch type value
+					when 'string'
+						@content ..= value
+					when 'number'
+						@content ..= value
+					else
+						error "bad argument ##{i} to 'write' (string expected, got #{type value})"
+		.lines = => lines @content
+		.setvbuf = -> -- Ignore buffering mode
+		.tostring = => @content
+		.__tostring = => @content
+	
+	stringFile.__index = stringFile
+	
+	-- TODO: unfinished
+	.openString = (str = '', mode = 'r') ->
+		local modeEnum
+		if mode\find 'r'
+			modeEnum = 'read'
+		elseif mode\find 'w'
+			modeEnum = 'write'
+		else
+			error "unknown mode: '#{mode}'"
+		return setmetatable {content: str, mode: modeEnum}, stringFile

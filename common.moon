@@ -1,8 +1,9 @@
-import format from string
-
 with setmetatable {}, {__index: _G}
 	.noop = ->
-	.empty = {}
+	.empty = setmetatable {}, {
+		__metatable: false
+		__newindex: ->
+	}
 	.index = (t, ...) ->
 		for i = 1, select '#', ...
 			return nil unless type(t) == 'table'

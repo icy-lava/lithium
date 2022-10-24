@@ -28,3 +28,5 @@ with setmetatable {}, {__index: string}
 		return iter
 	.lines = (str) -> .delim str, '\r?\n', true
 	.split = (str, delim, pattern) -> array .delim str, delim, pattern
+	.startsWith = (str, prefix) -> prefix == str\sub 1, #prefix
+	.endsWith = (str, suffix) -> suffix == str\sub -#suffix, -1

@@ -1,8 +1,6 @@
-import pack from require 'lithium.common'
+import pack, lazy from require 'lithium.common'
 import concat from table
-
--- We'll load inspect only if we need it, since we don't want to force the user to have it
-local inspect
+inspect = lazy require, 'inspect'
 
 with {}
 	.lazyloader = (prefix = '') -> setmetatable({}, {
@@ -22,9 +20,6 @@ with {}
 		process: (item, path) -> return item if path[#path] != inspect.METATABLE
 	}
 	.printi = (...) ->
-		-- Make sure inspect is loaded
-		inspect = inspect or require 'inspect'
-		
 		t = pack ...
 		for i = 1, t.n
 			t[i] = inspect(t[i], inspectOptions)

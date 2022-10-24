@@ -1,12 +1,13 @@
-import pack, unpack, index, set, ripairs, keys, array, empty from require 'lithium.common'
+import pack, unpack, index, set, clear, ripairs, keys, array, empty, lazy from require 'lithium.common'
 import wrap, yield from coroutine
-local inspect
+inspect = lazy require, 'inspect'
 
 with setmetatable {
 	:pack
 	:unpack
 	:index
 	:set
+	:clear
 	:ripairs
 	:keys
 	:array
@@ -18,6 +19,9 @@ with setmetatable {
 		return {k, .clone v for k, v in pairs value}
 	.invert = (t) -> {v, k for k, v in pairs t}
 	.isEmpty = (t) -> not next(t)
+	
+	_, table_new = pcall require, 'table.new'
+	.new = table_new or -> {} -- If there's no table.new, just ignore args
 	
 	gridIterator = (grid) ->
 		yield!
@@ -54,7 +58,6 @@ with setmetatable {
 			@length = select('#', ...)
 		
 		__tostring: =>
-			inspect = require 'inspect' if not inspect
 			stringified = {}
 			for i = 1, @length
 				value = @values[i]

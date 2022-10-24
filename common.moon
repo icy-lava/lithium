@@ -20,6 +20,11 @@ with setmetatable {}, {__index: _G}
 			assert type(t) != 'string', 'tried to index a string, but it\'s not allowed'
 		t[select(argLen - 1, ...)] = select(argLen, ...)
 		return t
+	_, table_clear = pcall require, 'table.clear'
+	.clear = table_clear or (t) ->
+		for k in pairs t
+			rawset t, k, nil
+		return t
 	
 	.pack = table.pack or (...) -> {n: select('#', ...), ...}
 	.unpack = table.unpack or unpack
@@ -36,3 +41,33 @@ with setmetatable {}, {__index: _G}
 	.keys = (t) -> keysIterator, t
 	
 	.array = (...) -> [v for v in ...]
+	
+	lazyTrigger = (t) ->
+		func = t.values[1]
+		result = func .unpack t.values, 2, t.values.n
+		switch type result
+			when 'table'
+				setmetatable t, nil
+				.clear t
+				for k, v in pairs result
+					t[k] = v
+				setmetatable t, getmetatable(result)
+			when 'function'
+				setmetatable t, {__call: result}
+				.clear t
+			else
+				error "unsupported type for lazy loader: '#{type result}'"
+	
+	lazyMetatable = {
+		__call: (t, ...) ->
+			lazyTrigger t
+			t ...
+		__index: (t, k) ->
+			lazyTrigger t
+			return t[k]
+		__newindex: (t, k, v) ->
+			lazyTrigger t
+			t[k] = v
+	}
+	.lazy = (...) -> setmetatable {values: .pack ...}, lazyMetatable
+		

@@ -1,5 +1,6 @@
 import pack, lazy from require 'lithium.common'
 import concat from table
+import format from string
 inspect = lazy require, 'inspect'
 
 with {}
@@ -12,7 +13,7 @@ with {}
 			return nil
 	})
 	
-	.printf = (...) -> print(format(...))
+	.printf = (...) -> print format ...
 	
 	-- Some options for inspect, to avoid unnecessary noise
 	inspectOptions = {

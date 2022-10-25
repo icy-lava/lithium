@@ -42,6 +42,20 @@ with setmetatable {}, {__index: _G}
 	
 	.array = (...) -> [v for v in ...]
 	
+	.requireZero = (...) ->
+		local firstError
+		for i = 1, select '#', ...
+			mod = select i, ...
+			ok, result = pcall require, mod
+			return result, mod if ok
+			firstError = result if i == 1
+		return nil, firstError
+	
+	.requireOne = (...) ->
+		result, errOrMod = .requireZero ...
+		error errOrMod, 2 if result == nil
+		return result, errOrMod
+	
 	lazyTrigger = (t) ->
 		func = t.values[1]
 		result = func .unpack t.values, 2, t.values.n

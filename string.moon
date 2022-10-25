@@ -2,7 +2,7 @@ import insert from table
 import wrap, yield from coroutine
 import array from require 'lithium.common'
 
-with setmetatable {}, {__index: string}
+with stringx = setmetatable {}, {__index: string}
 	delimIterator = (str, delim, plain) ->
 		yield!
 		i, strlen = 1, #str
@@ -30,3 +30,6 @@ with setmetatable {}, {__index: string}
 	.split = (str, delim, pattern) -> array .delim str, delim, pattern
 	.startsWith = (str, prefix) -> prefix == str\sub 1, #prefix
 	.endsWith = (str, suffix) -> suffix == str\sub -#suffix, -1
+	.patch = ->
+		for k, v in pairs stringx
+			string[k] = v

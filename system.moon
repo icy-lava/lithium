@@ -1,6 +1,6 @@
 import pack from require 'lithium.common'
 import concat from table
-import execute from os
+import execute, getenv from os
 
 with system = {}
 	.isWindows = if jit
@@ -8,9 +8,9 @@ with system = {}
 	elseif love
 		require('love.system').getOS! == 'Windows'
 	else
-		os.getenv('OS') == 'Windows_NT'
+		getenv('OS') == 'Windows_NT'
 	
-	.hasShell = os.execute! != 0
+	.hasShell = execute! != 0
 	
 	if .hasShell
 		.execute = (program, ...) ->
@@ -19,5 +19,6 @@ with system = {}
 				-- TODO: convert args correctly for Linux and Windows
 				args[i] = "\"#{args[i]}\""
 			command = concat args, ' ', 1, args.n
-			os.execute command
+			command = "\"#{command}\"" if .isWindows
+			execute command
 	

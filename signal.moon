@@ -1,4 +1,4 @@
-weak = {__mode = 'k'}
+weak = {__mode: 'k'}
 
 class Signal
 	new: =>

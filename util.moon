@@ -27,4 +27,25 @@ with {}
 		str = concat t, ', '
 		print str
 		return ...
-				
+	
+	mapLineNumber = (fileName, lineNumber, cache) ->
+		-- import readBytes from require 'lithium.io'
+		import reverse_line_number from require 'moonscript.errors'
+		line_tables = require 'moonscript.line_tables'
+		
+		-- cache[fileName] = readBytes fileName if not cache[fileName]
+		line_table = assert line_tables["@#{fileName}"]
+		newLineNumber = reverse_line_number fileName, line_table, lineNumber, cache
+		assert newLineNumber != 'unknown'
+		return newLineNumber
+	.rewriteTraceback = (traceback) ->
+		cache = {}
+		newLines = traceback\gsub '[^\r\n]+', (line) ->
+			whitespace, fileName, lineNumber, message = line\match '^(%s*)(.-):(%d+):(.*)$'
+			return line if not whitespace or not fileName\match '%.moon$'
+			lineNumber = mapLineNumber fileName, lineNumber, cache
+			message = message\gsub 'in function <([^<>]+%.moon):(%d+)>', (file, line) ->
+				line = mapLineNumber file, line, cache
+				return "in function <#{file}:#{line}(*)>"
+			return "#{whitespace}#{fileName}:#{lineNumber}(*):#{message}"
+		return newLines

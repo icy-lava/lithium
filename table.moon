@@ -1,4 +1,4 @@
-import pack, unpack, index, set, clear, ripairs, keys, array, empty, lazy from require 'lithium.common'
+import pack, unpack, isEmpty, index, set, delete, clear, ripairs, keys, array, empty, lazy from require 'lithium.common'
 import wrap, yield from coroutine
 import sort from table
 inspect = lazy require, 'inspect'
@@ -6,8 +6,10 @@ inspect = lazy require, 'inspect'
 with setmetatable {
 	:pack
 	:unpack
+	:isEmpty
 	:index
 	:set
+	:delete
 	:clear
 	:ripairs
 	:keys
@@ -17,10 +19,9 @@ with setmetatable {
 	.copy = (t) -> {k, v for k, v in pairs t}
 	.icopy = (t) -> [v for v in *t]
 	.clone = (value) ->
-		return value if type(value) != 'table'
+		return value if 'table' != type value
 		return {k, .clone v for k, v in pairs value}
 	.invert = (t) -> {v, k for k, v in pairs t}
-	.isEmpty = (t) -> not next(t)
 	
 	.map = (t, func, ...) -> {key, func value, ... for key, value in pairs t}
 	.imap = (t, func, ...) -> [func value, ... for value in *t]
@@ -75,14 +76,14 @@ with setmetatable {
 	.List = class
 		new: (...) =>
 			@values = {...}
-			@length = select('#', ...)
+			@length = select '#', ...
 		
 		__tostring: =>
 			stringified = {}
 			for i = 1, @length
 				value = @values[i]
-				value = inspect value if type(value) != 'table'
-				stringified[i] = tostring(value)
+				value = inspect value if 'table' != type value
+				stringified[i] = tostring value
 			return "#{@@__name} [ #{concat stringified, ', ', 1, @length} ]"
 		
 		__len: => @length

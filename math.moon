@@ -9,6 +9,7 @@ with setmetatable {}, {__index: math}
 	.ternary = (condition, ifTrue, ifFalse) -> if condition then ifTrue else ifFalse
 	
 	.isNAN = (x) -> x != x
+	.isNaN = .isNAN
 	
 	.lerp = (t, a, b) -> a * (1 - t) + b * t
 	.damp = (smoothing, dt, a, b) -> .lerp 1 - smoothing ^ dt, a, b

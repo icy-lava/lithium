@@ -30,6 +30,9 @@ with stringx = setmetatable {}, {__index: string}
 	.split = (str, delim, pattern) -> array .delim str, delim, pattern
 	.startsWith = (str, prefix) -> prefix == str\sub 1, #prefix
 	.endsWith = (str, suffix) -> suffix == str\sub -#suffix, -1
+	.trimLeft = (str) -> (str\gsub '^%s+', '', 1)
+	.trimRight = (str) -> (str\gsub '%s+$', '', 1)
+	.trim = (str) -> .trimLeft .trimRight str
 	.patch = ->
 		for k, v in pairs stringx
 			string[k] = v

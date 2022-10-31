@@ -29,5 +29,5 @@ with {}
 						break
 				if success then break
 			if not success
-				return nil, "couldn't parse string at byte #{i}"
+				return nil, "couldn't parse string at byte #{i}", i
 		return tokens

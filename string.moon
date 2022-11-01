@@ -22,17 +22,30 @@ with stringx = setmetatable {}, {__index: string}
 				yield str\sub i, strlen
 				break
 		while true do yield nil
-	.delim = (str, delim, pattern) ->
+	.delim = (str, delim, isPattern) ->
 		iter = wrap delimIterator
-		iter str, delim, not pattern
+		iter str, delim, not isPattern
 		return iter
 	.lines = (str) -> .delim str, '\r?\n', true
-	.split = (str, delim, pattern) -> array .delim str, delim, pattern
+	.lineAt = (str, i, newlinePattern = '\n') ->
+		line = 1
+		for _ in str\sub(1, i - 1)\gmatch newlinePattern
+			line += 1
+		return line
+	.split = (...) -> array .delim ...
+	
 	.startsWith = (str, prefix) -> prefix == str\sub 1, #prefix
 	.endsWith = (str, suffix) -> suffix == str\sub -#suffix, -1
+	.contains = (str, substr) -> not not str\find substr, 1, true
+	
 	.trimLeft = (str) -> (str\gsub '^%s+', '', 1)
 	.trimRight = (str) -> (str\gsub '%s+$', '', 1)
 	.trim = (str) -> .trimLeft .trimRight str
+	.trimNonEmpty = (str) ->
+		str = .trim str
+		return nil if str == ''
+		return str
+	
 	.patch = ->
 		for k, v in pairs stringx
 			string[k] = v

@@ -13,7 +13,8 @@ with {}
 					parser = lexType[j]
 					local values
 					if 'string' == type parser
-						values = pack str\find parser\gsub('^%^?', '^', 1), i
+						pattern = parser\gsub '^%^?', '^', 1
+						values = pack str\find pattern, i
 					else
 						values = pack parser str, i, strlen
 					start, stop = values[1], values[2]
@@ -21,13 +22,13 @@ with {}
 						table.remove values, 2
 						table.remove values, 1
 						values.n -= 2
+						values[0] = str\sub start, stop
 						
-						table.insert tokens, {type: ltype, value: str\sub(start, stop), :start, :stop, captures: values}
+						table.insert tokens, {type: ltype, :start, :stop, captures: values}
 						
 						i = stop + 1
 						success = true
 						break
-				if success then break
-			if not success
-				return nil, "couldn't parse string at byte #{i}", i
+				break if success
+			return nil, "couldn't parse byte '#{str\sub i, i}' at index #{i}", i unless success
 		return tokens

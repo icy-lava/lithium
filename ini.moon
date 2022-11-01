@@ -5,9 +5,10 @@
 -- A version 2 should lex smaller tokens that actually get parsed (into AST or final data),
 -- possibly also preserving the order of sections, warning of redefinitions, etc.
 
-import lex from require 'lithium.lexer'
-import ifilter, imap, icopy, set from require 'lithium.table'
-import lineAt, trim, trimNonEmpty, split, delim from require 'lithium.string'
+import lexer, table, string from require 'lithium'
+import lex from lexer
+import ifilter, imap, icopy, set from table
+import lineAt, trim, trimNonEmpty, split, delim from string
 
 with {}
 	types = {

@@ -25,6 +25,32 @@ with setmetatable {
 	
 	.map = (t, func, ...) -> {key, func value, ... for key, value in pairs t}
 	.imap = (t, func, ...) -> [func value, ... for value in *t]
+	.filter = (t, func, ...) ->
+		newT = {}
+		for key, value in pairs t
+			newT[key] = value if func value, ...
+		return newT
+	.ifilter = (t, func, ...) ->
+		newT = {}
+		newCount = 0
+		for value in *t
+			if func value, ...
+				newCount += 1
+				newT[newCount] = value
+		return newT
+	.reject = (t, func, ...) ->
+		newT = {}
+		for key, value in pairs t
+			newT[key] = value unless func value, ...
+		return newT
+	.ireject = (t, func, ...) ->
+		newT = {}
+		newCount = 0
+		for value in *t
+			unless func value, ...
+				newCount += 1
+				newT[newCount] = value
+		return newT
 	.sort = (t, comp) ->
 		newT = .icopy t
 		if comp == nil or 'function' == type comp

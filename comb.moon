@@ -13,10 +13,8 @@ with {}
 			Parser (state) ->
 				newState, err = transform state
 				return nil, err unless newState
-				
-				newState = copy newState
-				newState.result = mapper newState.result
-				return newState
+				with copy newState
+					.result = mapper .result
 		mapError: (mapper) =>
 			transform = @transform
 			Parser (state) ->
@@ -29,8 +27,7 @@ with {}
 			Parser (state) ->
 				newState, err = transform state
 				return nil, "unexpected match #{.where state}" if newState
-				newState = copy state
-				return state
+				copy state
 		atLeast: (num) =>
 			transform = @transform
 			Parser (state) ->
@@ -46,9 +43,8 @@ with {}
 				
 				return nil, "expected at least #{num} matches, got #{count}; #{err}" if count < num
 				
-				newState = copy state
-				newState.result = results
-				return newState
+				with copy state
+					.result = results
 		atMost: (num) =>
 			transform = @transform
 			Parser (state) ->
@@ -60,17 +56,15 @@ with {}
 					results[i] = newState.result
 					state = newState
 				
-				newState = copy state
-				newState.result = results
-				return newState
+				with copy state
+					.result = results
 		noConsume: =>
 			transform = @transform
 			Parser (state) ->
 				newState, err = transform state
 				return nil, err unless newState
-				newState = copy newState
-				newState.index = state.index
-				return newState
+				with copy newState
+					.index = state.index
 		
 		__unm: => @opposite!
 		__add: (other) => .choice {@, other}
@@ -97,10 +91,9 @@ with {}
 		{:data, :index} = state
 		strlen = #str
 		if str == data\sub index, index + strlen - 1
-			newState = copy state
-			newState.index += strlen
-			newState.result = str
-			return newState
+			return with copy state
+				.index += strlen
+				.result = str
 		return nil, "did not match literal '#{str}' #{.where state}"
 
 	.pattern = (str) -> Parser (state) ->
@@ -112,10 +105,9 @@ with {}
 			remove captures, 1
 			captures.n -= 2
 			match = data\sub start, stop
-			newState = copy state
-			newState.result = {:match, :captures}
-			newState.index = stop + 1
-			return newState
+			return with copy state
+				.result = {:match, :captures}
+				.index = stop + 1
 		return nil, "did not match pattern '#{str}' #{.where state}"
 	
 	.digit = .pattern '%d'
@@ -162,9 +154,8 @@ with {}
 			return nil, err unless newState
 			state = newState
 			results[i] = state.result
-		newState = copy state
-		newState.result = results
-		return newState
+		with copy state
+			.result = results
 	
 	.choice = (opt) -> Parser (state) ->
 		results = {}
@@ -172,5 +163,5 @@ with {}
 		for parser in *opt
 			newState, err = parser.transform state
 			return newState if newState
-			firstErr = err unless firstErr
+			firstErr = err if firstErr != nil
 		return nil, "did not match any parser; #{firstErr}"

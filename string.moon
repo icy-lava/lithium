@@ -32,6 +32,19 @@ with stringx = setmetatable {}, {__index: string}
 		for _ in str\sub(1, i - 1)\gmatch newlinePattern
 			line += 1
 		return line
+	.positionAt = (str, i, newlinePattern = '\n') ->
+		return nil, 'index is out of range' if i > #str
+		col = 1
+		line = 1
+		j = 1
+		while j < i
+			start, stop = str\find newlinePattern, j
+			break if not start or stop >= i
+			return nil, 'newline pattern matches empty string' if stop < j
+			j = stop + 1
+			col = 1
+			line += 1
+		return line, i - j + 1
 	.split = (...) -> array .delim ...
 	
 	.startsWith = (str, prefix) -> prefix == str\sub 1, #prefix

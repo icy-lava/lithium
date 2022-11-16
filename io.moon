@@ -4,6 +4,7 @@ with setmetatable {}, {__index: io}
 	.readBytes = (path, bytes = -1) ->
 		assert path
 		
+		-- TODO: don't assert, return error
 		with assert io.open path, 'rb'
 			local data
 			if bytes < 0

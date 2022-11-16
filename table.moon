@@ -1,6 +1,6 @@
 import pack, unpack, isEmpty, index, set, delete, clear, ripairs, keys, array, empty, lazy from require 'lithium.common'
 import wrap, yield from coroutine
-import sort from table
+import sort, insert from table
 inspect = lazy require, 'inspect'
 
 with setmetatable {
@@ -23,6 +23,20 @@ with setmetatable {
 		return {k, .clone v for k, v in pairs value}
 	.invert = (t) -> {v, k for k, v in pairs t}
 	
+	.merge = (...) ->
+		result = .copy((...))
+		for i = 2, select '#', ...
+			for k, v in pairs((select i, ...))
+				result[k] = v
+		return result
+	.imerge = (...) ->
+		result = .icopy((...))
+		count = #result
+		for i = 2, select '#', ...
+			for v in *select i, ...
+				count += 1
+				result[count] = v
+		return result
 	.map = (t, func, ...) -> {key, func value, ... for key, value in pairs t}
 	.imap = (t, func, ...) -> [func value, ... for value in *t]
 	.filter = (t, func, ...) ->

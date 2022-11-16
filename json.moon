@@ -1,6 +1,6 @@
 comb = require 'lithium.comb'
 import literal, pattern, uptoPattern, whitespace, sequence, eof from comb
-import imap from require 'lithium.table'
+import concat, insert, imap from require 'lithium.table'
 
 with {}
 	maybe_ws = whitespace\maybe!\default ''
@@ -19,14 +19,14 @@ with {}
 		pattern'%-?%d+'\index'match'
 		pattern'%.%d+'\index'match'\maybe!\default ''
 		pattern'[Ee][%-%+]?%d+'\index'match'\maybe!\default ''
-	}) / table.concat / tonumber
+	}) / concat / tonumber
 	number = number\tag 'number'
 	
 	escape = literal'\\' * (pattern'["\\/bfnrt]' + pattern'u%x%x%x%x')\index'match'
 	escape /= (result) ->
 		if 'u' == result\sub 1, 1
 			-- FIXME: need to decode unicode escape
-			return '???'
+			return '?'
 		switch result
 			when 'b' then '\b'
 			when 'f' then '\f'
@@ -37,7 +37,7 @@ with {}
 	
 	strin = sequence({
 		literal '"'
-		(escape + uptoPattern'["\\%c]') ^ 0 / table.concat
+		(escape + uptoPattern'["\\%c]') ^ 0 / concat
 		literal '"'
 	})\second!
 	strin = strin\tag 'string'
@@ -93,4 +93,53 @@ with {}
 		result, err = .parse str
 		return nil, err unless result
 		decodeValue result
-		
+	
+	ind = (level = 0) -> '\t'\rep level
+	
+	encodeValue = (val, indent = 0) ->
+		switch type val
+			when 'string'
+				val = val\gsub '[%z\1-\31\\"]', (char) ->
+					switch char
+						when '\\' then '\\\\'
+						when '"' then '\\"'
+						when '\r' then '\\r'
+						when '\n' then '\\n'
+						when '\t' then '\\t'
+						when '\b' then '\\b'
+						else string.format '\\u%04x', char\byte!
+				'"' .. val .. '"'
+			when 'table'
+				maxIndex = 0
+				isArray = true
+				for k, v in pairs val
+					kt = type k
+					return nil, 'object key may only be a string or a number' if kt != 'number' and kt != 'string'
+					if isArray and kt == 'number' and k >= 1
+						maxIndex = k if k > maxIndex
+					else
+						isArray = false
+						break
+				if isArray
+					t = {}
+					for i = 1, maxIndex
+						t[i], err = encodeValue val[i]
+						return nil, err unless t[i]
+					"[#{concat t, ', ', 1, maxIndex}]"
+				else
+					t = {}
+					for k, v in pairs val
+						k = tostring k
+						return nil, 'number - string object key name clash' if t[k]
+						t[k] = true
+						k, err = encodeValue k, indent + 1
+						return nil, err unless k
+						v, err = encodeValue v, indent + 1
+						return nil, err unless v
+						insert t, "#{ind indent + 1}#{k}: #{v}"
+					"{\n#{concat t, ',\n'}\n#{ind(indent)}}"
+			when 'nil'
+				'null'
+			else tostring val
+	
+	.encode = (val) -> encodeValue val

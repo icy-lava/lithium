@@ -1,4 +1,4 @@
-import pack, remove, copy from require 'lithium.table'
+import pack, remove, insert, copy from require 'lithium.table'
 import positionAt from require 'lithium.string'
 
 with {}
@@ -22,6 +22,26 @@ with {}
 				return newState if newState
 				err = mapper err, state
 				return nil, err
+		tag: (name) => @ / (result) -> {tag: name, value: result}
+		prefix: (pre) => pre * @ / (result) -> result[2]
+		suffix: (suf) => @ * suf / (result) -> result[1]
+	
+		delimited: (delimiter) =>
+			rest = (delimiter * @ / (result) -> result[2]) ^ 0
+			transform = @transform
+			Parser (state) ->
+				newState, err = transform state
+				return nil, err unless newState
+				state = newState
+				results = {state.result}
+				newState, err = rest state
+				if newState
+					state = newState
+					for result in *state.result
+						insert results, result
+				with copy state
+					.result = results
+		
 		opposite: =>
 			transform = @transform
 			Parser (state) ->
@@ -36,7 +56,8 @@ with {}
 				local err
 				while true
 					newState, err = transform state
-					break unless newState
+					-- NOTE: I don't know if it's desirable to break when index doesn't change, but we enter an infinite loop otherwise
+					break if not newState or state.index == newState.index
 					count += 1
 					results[count] = newState.result
 					state = newState
@@ -65,7 +86,6 @@ with {}
 				return nil, err unless newState
 				with copy newState
 					.index = state.index
-		
 		__unm: => @opposite!
 		__add: (other) => .choice {@, other}
 		__sub: (other) => .sequence({-other, @}) / (result) -> result[2]
@@ -86,6 +106,25 @@ with {}
 			:col
 		}
 	.where = (state) -> "at #{.pinpoint(state).message}"
+	
+	.sequence = (seq) -> Parser (state) ->
+		results = {}
+		for i, parser in ipairs seq
+			newState, err = parser.transform state
+			return nil, err unless newState
+			state = newState
+			results[i] = state.result
+		with copy state
+			.result = results
+	
+	.choice = (opt) -> Parser (state) ->
+		results = {}
+		local firstErr
+		for parser in *opt
+			newState, err = parser.transform state
+			return newState if newState
+			firstErr = err if firstErr != nil
+		return nil, "did not match any parser; #{firstErr}"
 
 	.literal = (str) -> Parser (state) ->
 		{:data, :index} = state
@@ -141,27 +180,12 @@ with {}
 	.newline /= (result) -> result.match
 	.newline %= (err, state) -> "did not match newline #{.where state}"
 	
+	.eof = .pattern '$'
+	.eof %= (err, state) -> "did not match EOF #{.where state}"
+	
+	.endline = .newline + .eof
+	.endline %= (err, state) -> "did not match end of line #{.where state}"
+	
 	.identifier = .pattern '[%a_][%w_]*'
 	.identifier /= (result) -> result.match
 	.identifier %= (err, state) -> "did not match identifier #{.where state}"
-	
-	.eof = .pattern '$'
-	
-	.sequence = (seq) -> Parser (state) ->
-		results = {}
-		for i, parser in ipairs seq
-			newState, err = parser.transform state
-			return nil, err unless newState
-			state = newState
-			results[i] = state.result
-		with copy state
-			.result = results
-	
-	.choice = (opt) -> Parser (state) ->
-		results = {}
-		local firstErr
-		for parser in *opt
-			newState, err = parser.transform state
-			return newState if newState
-			firstErr = err if firstErr != nil
-		return nil, "did not match any parser; #{firstErr}"

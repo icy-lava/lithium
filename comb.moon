@@ -23,11 +23,21 @@ with {}
 				err = mapper err, state
 				return nil, err
 		tag: (name) => @ / (result) -> {tag: name, value: result}
-		prefix: (pre) => pre * @ / (result) -> result[2]
-		suffix: (suf) => @ * suf / (result) -> result[1]
-	
+		prefix: (pre) => pre * @
+		suffix: (suf) => .sequence({@, suf})\first!
+		surround: (prefix, suffix = prefix) => .sequence({prefix, @, suffix})\second!
+		
+		index: (idx) => @ / (result) -> result[idx]
+		first: => @index 1
+		second: => @index 2
+		third: => @index 3
+		fourth: => @index 4
+		
+		maybe: => (@ ^ -1)\first!
+		default: (value) => @ / (result = value) -> result
+		
 		delimited: (delimiter) =>
-			rest = (delimiter * @ / (result) -> result[2]) ^ 0
+			rest = (delimiter * @) ^ 0
 			transform = @transform
 			Parser (state) ->
 				newState, err = transform state
@@ -41,6 +51,16 @@ with {}
 						insert results, result
 				with copy state
 					.result = results
+		
+		precede: (other) =>
+			transform = @transform
+			Parser (state) ->
+				newState, err = transform state
+				return nil, err unless newState
+				state = newState
+				newState, err = other.transform state
+				return nil, err unless newState
+				copy newState
 		
 		opposite: =>
 			transform = @transform
@@ -61,6 +81,7 @@ with {}
 					count += 1
 					results[count] = newState.result
 					state = newState
+				results.n = count
 				
 				return nil, "expected at least #{num} matches, got #{count}; #{err}" if count < num
 				
@@ -75,6 +96,7 @@ with {}
 					newState, err = transform state
 					break unless newState
 					results[i] = newState.result
+					results.n = i
 					state = newState
 				
 				with copy state
@@ -89,7 +111,7 @@ with {}
 		__unm: => @opposite!
 		__add: (other) => .choice {@, other}
 		__sub: (other) => .sequence({-other, @}) / (result) -> result[2]
-		__mul: (other) => .sequence {@, other}
+		__mul: (other) => @\precede other
 		__len: => @noConsume!
 		__pow: (exponent) => if exponent >= 0 then @atLeast exponent else @atMost -exponent
 		__div: (divisor) => @map divisor
@@ -118,14 +140,19 @@ with {}
 			.result = results
 	
 	.choice = (opt) -> Parser (state) ->
-		results = {}
 		local firstErr
 		for parser in *opt
 			newState, err = parser.transform state
 			return newState if newState
 			firstErr = err if firstErr != nil
 		return nil, "did not match any parser; #{firstErr}"
-
+	
+	.proxy = (getParser) ->
+		parser = nil
+		Parser (state) ->
+			parser = getParser! if parser == nil
+			return parser.transform state
+	
 	.literal = (str) -> Parser (state) ->
 		{:data, :index} = state
 		strlen = #str
@@ -148,6 +175,22 @@ with {}
 				.result = {:match, :captures}
 				.index = stop + 1
 		return nil, "did not match pattern '#{str}' #{.where state}"
+	
+	.uptoLiteral = (str) -> Parser (state) ->
+		{:data, :index} = state
+		start = data\find str, index, true
+		start = #data + 1 unless start
+		with copy state
+			.index = start
+			.result = data\sub index, start - 1
+	
+	.uptoPattern = (str) -> Parser (state) ->
+		{:data, :index} = state
+		start = data\find str, index
+		start = #data + 1 unless start
+		with copy state
+			.index = start
+			.result = data\sub index, start - 1
 	
 	.digit = .pattern '%d'
 	.digit /= (result) -> result.match

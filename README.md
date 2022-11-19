@@ -4,7 +4,7 @@ Lithium is a heavy-weight "standard" library for Lua, MoonScript and LÖVE.
 
 ***It is currently considered unstable and the API is also unstable. Don't use this yet unless you want to cry :)***
 
-# Install
+## Install
 
 ```shell
 # Install moonscript using luarocks
@@ -18,7 +18,7 @@ git submodule add https://github.com/icy-lava/lithium.git lithium
 git clone https://github.com/icy-lava/lithium.git lithium
 ```
 
-# Usage
+## Usage
 
 ```lua
 -- main.lua
@@ -28,7 +28,7 @@ local lithium = require('lithium') -- or 'lithium.init' if it fails
 local string, table, math = lithium.string, lithium.table, lithium.math
 
 for line in string.lines('hello\nworld') do
-	print(line)
+    print(line)
 end
 ```
 
@@ -40,5 +40,5 @@ import string, table, math from require 'lithium' -- or 'lithium.init'
 import lines from string
 
 for line in lines 'hello\nworld'
-	print line
+    print line
 ```

@@ -27,9 +27,7 @@ with setmetatable {}, {__index: io}
 			for i = 1, len
 				value = select i, ...
 				switch type value
-					when 'string'
-						@content ..= value
-					when 'number'
+					when 'string', 'number'
 						@content ..= value
 					else
 						error "bad argument ##{i} to 'write' (string expected, got #{type value})"

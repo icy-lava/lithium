@@ -4,10 +4,7 @@ import positionAt from require 'lithium.string'
 with {}
 	class Parser
 		new: (@transform) =>
-		run: (state) =>
-			newState, err = @.transform state
-			return nil, err unless newState
-			return newState
+		run: (state) => @.transform state
 		map: (mapper) =>
 			transform = @transform
 			Parser (state) ->
@@ -34,7 +31,11 @@ with {}
 		fourth: => @index 4
 		
 		maybe: => (@ ^ -1)\first!
+		maybeBlank: => @maybe!\default ''
 		default: (value) => @ / (result = value) -> result
+		wsl: => @prefix .maybe_ws
+		wsr: => @suffix .maybe_ws
+		wss: => @surround .maybe_ws
 		
 		delimited: (delimiter) =>
 			rest = (delimiter * @) ^ 0
@@ -58,7 +59,7 @@ with {}
 				newState, err = transform state
 				return nil, err unless newState
 				state = newState
-				newState, err = other.transform state
+				newState, err = other state
 				return nil, err unless newState
 				copy newState
 		
@@ -111,7 +112,7 @@ with {}
 		__unm: => @opposite!
 		__add: (other) => .choice {@, other}
 		__sub: (other) => .sequence({-other, @}) / (result) -> result[2]
-		__mul: (other) => @\precede other
+		__mul: (other) => @precede other
 		__len: => @noConsume!
 		__pow: (exponent) => if exponent >= 0 then @atLeast exponent else @atMost -exponent
 		__div: (divisor) => @map divisor
@@ -146,6 +147,42 @@ with {}
 			return newState if newState
 			firstErr = err if firstErr != nil
 		return nil, "did not match any parser; #{firstErr}"
+	.binary = (atom, precDef) ->
+		precMap = {}
+		allParsers = {}
+		for i, parsers in ipairs precDef
+			for parser in *parsers
+				precMap[parser] = i
+				table.insert allParsers, parser
+		
+		maybe_binary = (state, prec) ->
+			oldState = state
+			matched = false
+			local otherPrec
+			for parser in *allParsers
+				newState, err = parser state
+				if newState
+					state = newState
+					matched = true
+					otherPrec = precMap[parser]
+					break
+			if matched and otherPrec > prec
+				operator = state.result
+				newState, err = atom state
+				return nil, err unless newState
+				state = newState
+				newState, err = maybe_binary state, otherPrec
+				return nil, err unless newState
+				state = newState
+				state.result = {:operator, left: oldState.result, right: state.result}
+				return maybe_binary state, prec
+			return oldState
+		
+		Parser (state) ->
+			newState, err = atom state
+			return nil, err unless newState
+			state = newState
+			return maybe_binary state, 0
 	
 	.proxy = (getParser) ->
 		parser = nil
@@ -192,25 +229,21 @@ with {}
 			.index = start
 			.result = data\sub index, start - 1
 	
-	.digit = .pattern '%d'
-	.digit /= (result) -> result.match
+	.digit = .pattern'%d'\index'match'
 	.digit %= (err, state) -> "did not match digit #{.where state}"
 	
-	.digits = .pattern '%d+'
-	.digits /= (result) -> result.match
+	.digits = .pattern'%d+'\index'match'
 	.digits %= (err, state) -> "did not match digits #{.where state}"
 	
-	.letter = .pattern '%a'
-	.letter /= (result) -> result.match
+	.letter = .pattern'%a'\index'match'
 	.letter %= (err, state) -> "did not match letter #{.where state}"
 	
-	.letters = .pattern '%a+'
-	.letters /= (result) -> result.match
+	.letters = .pattern'%a+'\index'match'
 	.letters %= (err, state) -> "did not match letters #{.where state}"
 	
-	.whitespace = .pattern '%s+'
-	.whitespace /= (result) -> result.match
+	.whitespace = .pattern'%s+'\index'match'
 	.whitespace %= (err, state) -> "did not match whitespace #{.where state}"
+	.maybe_ws = .whitespace\maybeBlank!
 	
 	.cr = .literal '\r'
 	.cr %= (err, state) -> "did not match carriage return #{.where state}"
@@ -229,6 +262,5 @@ with {}
 	.endline = .newline + .eof
 	.endline %= (err, state) -> "did not match end of line #{.where state}"
 	
-	.identifier = .pattern '[%a_][%w_]*'
-	.identifier /= (result) -> result.match
+	.identifier = .pattern'[%a_][%w_]*'\index'match'
 	.identifier %= (err, state) -> "did not match identifier #{.where state}"

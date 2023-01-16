@@ -4,21 +4,23 @@ with setmetatable {}, {__index: io}
 	.readBytes = (path, bytes = -1) ->
 		assert path
 		
-		-- TODO: don't assert, return error
-		with assert io.open path, 'rb'
+		stream, err = io.open path, 'rb'
+		return nil, err unless stream
+		with stream
 			local data
 			if bytes < 0
 				if bytes == -1
-					data = \read '*a'
+					data, err = \read '*a'
 				else
 					size = \seek 'end'
 					\seek 'set'
-					data = \read size + bytes + 1
+					data, err = \read size + bytes + 1
 			else
-				data = \read bytes
-				
+				data, err = \read bytes
+			
 			\close!
 			
+			return nil, err or 'could not read file' unless data
 			return data
 	
 	stringFile = with {}

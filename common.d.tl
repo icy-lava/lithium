@@ -14,6 +14,7 @@ local record common
 	clear: function<K, V>(t: {K:V}): {K:V}
 	
 	pack: function<T>(...: T): Packed<T>
+	packCaptures: function<T>(start: integer, stop: integer, ...: T): integer, integer, Packed<T>
 	unpack: function<T>({T}, integer, integer): T...
 	
 	ripairs: function<T>({T}): function(): (integer, T), table, integer

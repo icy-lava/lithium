@@ -50,6 +50,7 @@ with setmetatable {}, {__index: _G}
 		return t
 	
 	.pack = table.pack or (...) -> {n: select('#', ...), ...}
+	.packCaptures = (start, stop, ...) -> start, stop, .pack ...
 	.unpack = table.unpack or unpack
 	
 	ripairsIterator = (t, i) ->

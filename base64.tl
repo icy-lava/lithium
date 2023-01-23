@@ -19,11 +19,11 @@ return {
 			c1 = value
 			local charCount = #chars
 			if charCount == 3 then
-				format('%s%s%s%s', bmap[c1], bmap[c2], bmap[c3], bmap[c4])
+				return format('%s%s%s%s', bmap[c1], bmap[c2], bmap[c3], bmap[c4])
 			elseif charCount == 2 then
-				format('%s%s%s=', bmap[c1], bmap[c2], bmap[c3])
+				return format('%s%s%s=', bmap[c1], bmap[c2], bmap[c3])
 			else
-				format('%s%s==', bmap[c1], bmap[c2])
+				return format('%s%s==', bmap[c1], bmap[c2])
 			end
 		end)
 		return result
@@ -45,11 +45,11 @@ return {
 			c1 = value
 			local charCount = #chars
 			if charCount == 4 then
-				format('%c%c%c', c1, c2, c3)
+				return format('%c%c%c', c1, c2, c3)
 			elseif charCount == 3 then
-				format('%c%c', c1, c2)
+				return format('%c%c', c1, c2)
 			elseif charCount == 2 then
-				format('%c', c1)
+				return format('%c', c1)
 			end
 		end)
 		return result

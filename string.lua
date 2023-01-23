@@ -1,1 +1,1 @@
-return require 'stringx'
+return require 'lithium.stringx'

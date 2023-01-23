@@ -16,7 +16,7 @@ return {
 	FindFunc = FindFunc,
 	Token = Token,
 	
-	lexString = function(str: string, patterns: {{string | FindFunc}}): {Token}, string
+	lexString = function(str: string, patterns: {{string | FindFunc}}): {Token}, string, integer
 		local i : integer = 1
 		local strlen = #str
 		local tokens : {Token} = {}
@@ -28,7 +28,7 @@ return {
 				if pattern1 is string then
 					tokenType = pattern1
 				else
-					return nil, 'expected a string as first value'
+					return nil, 'expected a string as first value', i
 				end
 				for j = 2, #pattern do
 					local pat = pattern[j]
@@ -57,7 +57,7 @@ return {
 				if token then break end
 			end
 			if not token then
-				return nil, 'token not found'
+				return nil, 'token not found', i
 			end
 			table.insert(tokens, token)
 		end

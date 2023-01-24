@@ -18,7 +18,7 @@ with setmetatable {}, {__index: _G}
 			key = select i, ...
 			t[key] = {} if t[key] == nil
 			t = t[key]
-			assert 'string' != type t, 'tried to index a string, but it\'s not allowed'
+			assert 'string' != type(t), 'tried to index a string, but it\'s not allowed'
 		t[select argLen - 1, ...] = select argLen, ...
 		return t
 	.delete = (t, ...) ->
@@ -65,47 +65,4 @@ with setmetatable {}, {__index: _G}
 	.keys = (t) -> keysIterator, t
 	
 	.array = (...) -> [v for v in ...]
-	
-	.requireZero = (...) ->
-		local firstError
-		for i = 1, select '#', ...
-			mod = select i, ...
-			ok, result = pcall require, mod
-			return result, mod if ok
-			firstError = result if i == 1
-		return nil, firstError
-	
-	.requireOne = (...) ->
-		result, errOrMod = .requireZero ...
-		error errOrMod, 2 if result == nil
-		return result, errOrMod
-	
-	lazyTrigger = (t) ->
-		func = t.values[1]
-		result = func .unpack t.values, 2, t.values.n
-		switch type result
-			when 'table'
-				setmetatable t, nil
-				.clear t
-				for k, v in pairs result
-					t[k] = v
-				setmetatable t, getmetatable(result)
-			when 'function'
-				setmetatable t, {__call: result}
-				.clear t
-			else
-				error "unsupported type for lazy loader: '#{type result}'"
-	
-	lazyMetatable = {
-		__call: (t, ...) ->
-			lazyTrigger t
-			t ...
-		__index: (t, k) ->
-			lazyTrigger t
-			return t[k]
-		__newindex: (t, k, v) ->
-			lazyTrigger t
-			t[k] = v
-	}
-	.lazy = (...) -> setmetatable {values: .pack ...}, lazyMetatable
 		

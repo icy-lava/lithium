@@ -1,6 +1,6 @@
 comb = require 'lithium.comb'
 import literal, pattern, uptoPattern, whitespace, sequence, eof from comb
-import concat, insert, imap from require 'lithium.table'
+import concat, insert, imap from require 'lithium.tablex'
 
 with {}
 	maybe_ws = whitespace\maybe!\default ''

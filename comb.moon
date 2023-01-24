@@ -1,5 +1,5 @@
-import pack, remove, insert, copy from require 'lithium.table'
-import positionAt from require 'lithium.string'
+import pack, remove, insert, copy from require 'lithium.tablex'
+import positionAt from require 'lithium.stringx'
 
 with {}
 	class Parser

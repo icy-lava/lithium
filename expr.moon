@@ -1,6 +1,6 @@
 comb = require 'lithium.comb'
 import Parser, identifier, pattern, proxy, digits, maybe_ws, eof, literal, sequence from comb
-import map, unpack from require 'lithium.table'
+import map, unpack from require 'lithium.tablex'
 
 with {}
 	empty = {}

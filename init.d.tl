@@ -1,0 +1,14 @@
+return {
+	base32 = require 'lithium.base32',
+	base64 = require 'lithium.base64',
+	common = require 'lithium.common',
+	hex = require 'lithium.hex',
+	ini = require 'lithium.ini',
+	iox = require 'lithium.iox',
+	lexer = require 'lithium.lexer',
+	mathx = require 'lithium.mathx',
+	signal = require 'lithium.signal',
+	stringx = require 'lithium.stringx',
+	system = require 'lithium.system',
+	tablex = require 'lithium.tablex',
+}

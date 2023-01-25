@@ -7,7 +7,7 @@ if thisModuleName ~= 'lithium' then
 	end
 end
 
-setmetatable({}, {
+return setmetatable({}, {
 	__index = function(t, modname)
 		local status, result = pcall(require, "lithium." .. modname)
 		if not status then

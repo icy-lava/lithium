@@ -1,15 +1,15 @@
 # Lithium
 
-Lithium is a heavy-weight "standard" library for Lua, MoonScript and LÖVE.
+Lithium is a heavy-weight "standard" library for Lua, Teal and LÖVE.
 
 ***It is currently considered unstable and the API is also unstable. Don't use this yet unless you want to cry :)***
 
 ## Install
 
 ```shell
-# Install moonscript using luarocks
-# (MoonScript files will be compiled into Lua in the future)
-luarocks install moonscript
+# Install Teal using luarocks
+# (Teal files will be compiled into Lua in the future)
+luarocks install tl
 
 # Within a git repository
 git submodule add https://github.com/icy-lava/lithium.git lithium
@@ -22,23 +22,12 @@ git clone https://github.com/icy-lava/lithium.git lithium
 
 ```lua
 -- main.lua
-require('moonscript') -- If using uncompiled moonscript files
+require('tl').loader() -- If using uncompiled Teal files
 
 local lithium = require('lithium') -- or 'lithium.init' if it fails
-local string, table, math = lithium.string, lithium.table, lithium.math
+local stringx, tablex, mathx = lithium.stringx, lithium.tablex, lithium.mathx
 
-for line in string.lines('hello\nworld') do
+for line in stringx.lines('hello\nworld') do
     print(line)
 end
-```
-
-With moonscript
-
-```moonscript
--- main.moon
-import string, table, math from require 'lithium' -- or 'lithium.init'
-import lines from string
-
-for line in lines 'hello\nworld'
-    print line
 ```

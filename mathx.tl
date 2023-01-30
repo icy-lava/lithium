@@ -4,7 +4,7 @@ local function lerp(t: number, a: number, b: number): number
 	return a * (1 - t) + b * t
 end
 
-return {
+return setmetatable({
 	tau = math.pi * 2,
 	
 	root = function(x: number, rpow: number): number
@@ -60,4 +60,4 @@ return {
 		if step == nil then step = 1 end
 		return floor(x / step + 0.5) * step
 	end
-}
+}, {__index = math})

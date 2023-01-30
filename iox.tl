@@ -1,4 +1,4 @@
-return {
+return setmetatable({
 	readBytes = function(path: string, bytes: integer): string, string
 		assert(path)
 		if bytes is nil then bytes = -1 end
@@ -23,4 +23,4 @@ return {
 		if result is nil then return nil, err or 'could not read file' end
 		return result
 	end
-}
+}, {__index = io})

@@ -3,7 +3,7 @@ local pack, unpack, isEmpty, index, set, delete, clear, ripairs, keys, array, em
 
 local sort = table.sort
 
-local tablex = {
+local tablex = setmetatable({
 	pack = pack,
 	unpack = unpack,
 	isEmpty = isEmpty,
@@ -15,7 +15,7 @@ local tablex = {
 	keys = keys,
 	array = array,
 	empty = empty
-}
+}, {__index = table})
 
 function tablex.copy(t)
 	local newT = {}

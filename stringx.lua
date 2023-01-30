@@ -1,7 +1,7 @@
 local wrap, yield = coroutine.wrap, coroutine.yield
 local array = require('lithium.common').array
 
-local stringx = {}
+local stringx = setmetatable({}, {__index = string})
 
 local function delimIterator(str, delim, plain)
 	yield()

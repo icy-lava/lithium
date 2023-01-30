@@ -1,8 +1,8 @@
-SOURCE_MOONSCRIPT := $(wildcard *.moon)
-SOURCE_LUA_GENERATED := $(patsubst %.moon,%.lua,$(SOURCE_MOONSCRIPT))
+SOURCE_TEAL := $(wildcard *.tl)
+SOURCE_LUA_GENERATED := $(patsubst %.tl,%.lua,$(SOURCE_TEAL))
 
 .PHONY: compile
 compile: $(SOURCE_LUA_GENERATED)
 
-%.lua: %.moon
-	moonc $<
+%.lua: %.tl
+	tl gen $<

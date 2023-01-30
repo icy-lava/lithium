@@ -54,9 +54,10 @@ local function maybe_call(parser)
 	end)
 end
 
-expr.expr = maybe_call(comb.proxy(function()
+expr.expr = comb.proxy(function()
 	return expr.binary_expr
-end))
+end)
+expr.expr = maybe_call(expr.expr)
 
 expr.parens = expr.expr:surround(pattern('%s*%(%s*'), pattern('%s*%)%s*'))
 
@@ -66,7 +67,8 @@ negated_number = negated_number / function(result)
 	return result
 end
 
-expr.atom = maybe_call(negated_number + expr.number + expr.identifier + expr.parens)
+expr.atom = negated_number + expr.number + expr.identifier + expr.parens
+expr.atom = maybe_call(expr.atom)
 
 local wss = function(t)
 	return map(t, function(v)
@@ -182,7 +184,7 @@ end
 
 function expr.eval(str, env)
 	if env == nil then
-		env = require('lithium.math')
+		env = require('lithium.mathx')
 	end
 	local ast = assert(expr.compile(str))
 	return expr.evalNode(ast, env)

@@ -5,6 +5,7 @@ return {
 	hex = require 'lithium.hex',
 	ini = require 'lithium.ini',
 	iox = require 'lithium.iox',
+	json = require 'lithium.json',
 	lexer = require 'lithium.lexer',
 	mathx = require 'lithium.mathx',
 	signal = require 'lithium.signal',

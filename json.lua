@@ -130,7 +130,7 @@ local function ind(level)
 	return ('\t'):rep(level)
 end
 
-local function encodeValue(val, indent)
+function json.encode(val, indent)
 	if indent == nil then
 		indent = 0
 	end
@@ -160,9 +160,15 @@ local function encodeValue(val, indent)
 		for k, _ in pairs(val) do
 			local kt = type(k)
 			if kt ~= 'number' and kt ~= 'string' then
-				return nil, 'object key may only be a string or a number'
+				return nil, 'object key may only be a string or an integer'
 			end
-			if isArray and kt == 'number' and k >= 1 then
+			if isArray and kt == 'number' then
+				if k < 1 then
+					return nil, 'array indices must start from 1'
+				end
+				if k % 1 ~= 0 then
+					return nil, 'array index may only be an integer'
+				end
 				if k > maxIndex then
 					maxIndex = k
 				end
@@ -175,7 +181,7 @@ local function encodeValue(val, indent)
 			local t = {}
 			for i = 1, maxIndex do
 				local err
-				t[i], err = encodeValue(val[i])
+				t[i], err = json.encode(val[i])
 				if not (t[i]) then
 					return nil, err
 				end
@@ -190,11 +196,11 @@ local function encodeValue(val, indent)
 				end
 				t[k] = true
 				local err
-				k, err = encodeValue(k, indent + 1)
+				k, err = json.encode(k, indent + 1)
 				if not (k) then
 					return nil, err
 				end
-				v, err = encodeValue(v, indent + 1)
+				v, err = json.encode(v, indent + 1)
 				if not (v) then
 					return nil, err
 				end
@@ -207,10 +213,6 @@ local function encodeValue(val, indent)
 	else
 		return tostring(val)
 	end
-end
-
-function json.encode(val)
-	return encodeValue(val)
 end
 
 return json

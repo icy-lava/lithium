@@ -2,6 +2,7 @@ return {
 	base32 = require 'lithium.base32',
 	base64 = require 'lithium.base64',
 	common = require 'lithium.common',
+	expr = require 'lithium.expr',
 	hex = require 'lithium.hex',
 	ini = require 'lithium.ini',
 	iox = require 'lithium.iox',

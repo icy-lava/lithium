@@ -120,56 +120,54 @@ end
 
 function expr.evalNode(node, env)
 	local result
-	local _exp_0 = node.tag
-	if 'number' == _exp_0 then
+	if 'number' == node.tag then
 		result = node.value
-	elseif 'binary' == _exp_0 then
+	elseif 'binary' == node.tag then
 		if node.operator == '.' then
 			local left = expr.evalNode(node.left, env)
 			if not ('table' == type(left)) then
-				error('trying to index a non-namespace value')
+				return nil, 'trying to index a non-namespace value'
 			end
 			if not (node.right.tag == 'identifier') then
-				error('right side of namespace operator must be an identifier')
+				return nil, 'right side of namespace operator must be an identifier'
 			end
 			local value = left[node.right.value]
 			if value == nil then
-				error("variable '" .. tostring(node.right.value) .. "' does not exist in namespace")
+				return nil, "variable '" .. tostring(node.right.value) .. "' does not exist in namespace"
 			end
 			result = value
 		else
 			local left = expr.evalNode(node.left, env)
 			local right = expr.evalNode(node.right, env)
 			if not ('number' == type(left) and 'number' == type(right)) then
-				error('attempted to add non-number value')
+				return nil, 'attempted to operate on non-number value'
 			end
-			local _exp_1 = node.operator
-			if '+' == _exp_1 then
+			if '+' == node.operator then
 				result = left + right
-			elseif '-' == _exp_1 then
+			elseif '-' == node.operator then
 				result = left - right
-			elseif '*' == _exp_1 then
+			elseif '*' == node.operator then
 				result = left * right
-			elseif '/' == _exp_1 then
+			elseif '/' == node.operator then
 				result = left / right
-			elseif '%' == _exp_1 then
+			elseif '%' == node.operator then
 				result = left % right
-			elseif '^' == _exp_1 then
+			elseif '^' == node.operator then
 				result = left ^ right
 			else
-				result = error("unknown operator '" .. tostring(node.operator) .. "'")
+				return nil, "unknown operator '" .. tostring(node.operator) .. "'"
 			end
 		end
-	elseif 'identifier' == _exp_0 then
+	elseif 'identifier' == node.tag then
 		local value = env[node.value]
 		if value == nil then
-			error("variable '" .. tostring(node.value) .. "' does not exist in namespace")
+			return nil, "variable '" .. tostring(node.value) .. "' does not exist in namespace"
 		end
 		result = value
-	elseif 'call' == _exp_0 then
+	elseif 'call' == node.tag then
 		local func = expr.evalNode(node.func, env)
 		if not ('function' == type(func)) then
-			error('tried to call a non-function value')
+			return nil, 'tried to call a non-function value'
 		end
 		local params = {
 			n = #node.params
@@ -186,7 +184,8 @@ function expr.eval(str, env)
 	if env == nil then
 		env = require('lithium.mathx')
 	end
-	local ast = assert(expr.compile(str))
+	local ast, err = expr.compile(str)
+	if ast == nil then return nil, err end
 	return expr.evalNode(ast, env)
 end
 

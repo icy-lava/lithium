@@ -210,9 +210,11 @@ function json.encode(val, indent)
 		end
 	elseif 'nil' == typ then
 		return 'null'
-	else
+	elseif typ == 'number' or typ == 'boolean' then
 		return tostring(val)
 	end
+	
+	return nil, 'can not encode ' .. typ .. ' to json'
 end
 
 return json

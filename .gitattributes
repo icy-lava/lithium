@@ -1,0 +1,2 @@
+*.tl linguist-language=lua linguist-detectable
+*.d.tl linguist-documentation

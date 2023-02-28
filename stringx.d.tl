@@ -15,4 +15,36 @@ local record stringx
 	trimNonEmpty: function(str: string): string
 end
 
-return stringx
+return {
+	-- string.*
+	find    = string.find,
+	format  = string.format,
+	rep     = string.rep,
+	gsub    = string.gsub,
+	len     = string.len,
+	gmatch  = string.gmatch,
+	dump    = string.dump,
+	match   = string.match,
+	reverse = string.reverse,
+	byte    = string.byte,
+	char    = string.char,
+	upper   = string.upper,
+	lower   = string.lower,
+	sub     = string.sub,
+	
+	-- lithium.stringx.*
+	delim        = stringx.delim,
+	lines        = stringx.lines,
+	lineAt       = stringx.lineAt,
+	positionAt   = stringx.positionAt,
+	split        = stringx.split,
+	
+	startsWith   = stringx.startsWith,
+	endsWiths    = stringx.endsWiths,
+	contains     = stringx.contains,
+	
+	trimLeft     = stringx.trimLeft,
+	trimRight    = stringx.trimRight,
+	trim         = stringx.trim,
+	trimNonEmpty = stringx.trimNonEmpty,
+}

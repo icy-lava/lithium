@@ -10,7 +10,7 @@ local record Signal<T>
 	connect: function<U>(self: Signal<U>, func: NoReturn)
 	connect: function<U>(self: Signal<U>, event: U, obj: {U:function({U:any}, ...: any): ()})
 	disconnect: function<U>(self: Signal<U>, funcOrObj: NoReturn | {U:function({U:any}, ...: any): ()})
-	emit: function(...: any)
+	emit: function<U>(self: Signal<U>, ...: any)
 end
 
 return Signal

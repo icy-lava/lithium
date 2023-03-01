@@ -1,3 +1,5 @@
+local common = require 'lithium.common'
+
 local record stringx
 	delim: function(str: string, delim: string, isPattern: boolean): function(): string
 	lines: function(str: string): function(): string
@@ -31,6 +33,11 @@ return {
 	upper   = string.upper,
 	lower   = string.lower,
 	sub     = string.sub,
+	
+	-- lithium.common
+	quote = common.quote,
+	pretty = common.pretty,
+	pprint = common.pprint,
 	
 	-- lithium.stringx.*
 	delim        = stringx.delim,

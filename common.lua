@@ -131,4 +131,100 @@ function common.keys(t)
 	return common.array(pairs(t))
 end
 
+local function singleToMulti(func)
+	return function(...)
+		local count = select('#', ...)
+		local values = {}
+		for i = 1, count do
+			values[i] = func((select(i, ...)))
+		end
+		return common.unpack(values, 1, count)
+	end
+end
+
+local format = string.format
+local function quote(value)
+	return format('%q', value)
+end
+
+common.quote = singleToMulti(quote)
+
+local function indentation(indent)
+	return ('    '):rep(indent)
+end
+
+local function pretty(value, indent, refmap)
+	indent = indent or 0
+	local vtype = type(value)
+	if vtype == 'string' then
+		return quote(value)
+	elseif vtype == 'number' or vtype == 'boolean' then
+		return tostring(value)
+	end
+	
+	refmap = refmap or {}
+	
+	if vtype == 'table' and not refmap[value] then
+		if common.isEmpty(value) then
+			return '{}'
+		end
+		
+		refmap[value] = true
+		
+		local sequential = {}
+		local maxI = -1
+		local count = 0
+		local isArray = true
+		for k in pairs(value) do
+			if type(k) == 'number' and k >= 1 and k % 1 == 0 then
+				table.insert(sequential, k)
+				maxI = math.max(maxI, k)
+			else
+				isArray = false
+			end
+			count = count + 1
+		end
+		
+		if isArray and count == maxI then
+			local str = {}
+			for _, v in ipairs(value) do
+				table.insert(str, pretty(v, indent, refmap))
+			end
+			return format('{%s}', table.concat(str, ', '))
+		end
+		
+		indent = indent + 1
+		
+		local str = {'{\n'}
+		for k, v in pairs(value) do
+			if type(k) == 'string' then
+				if not k:match('^[%a_][%w_]*$') then
+					k = format('[%q]', k)
+				end
+			else
+				k = format('[%s]', pretty(k, 0, refmap))
+			end
+			table.insert(str, format('%s%s = %s,\n', indentation(indent), k, pretty(v, indent, refmap)))
+		end
+		indent = indent - 1
+		
+		table.insert(str, indentation(indent))
+		table.insert(str, '}')
+		
+		return table.concat(str)
+	end
+	
+	return format('<%s>', value)
+end
+
+common.pretty = singleToMulti(pretty)
+
+function common.pprint(...)
+	local values = {}
+	for i = 1, select('#', ...) do
+		values[i] = pretty((select(i, ...)))
+	end
+	print(table.concat(values, ', '))
+end
+
 return common

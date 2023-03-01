@@ -37,6 +37,18 @@ local record common
 	
 	ripairs: function<T>({T}): function(): (integer, T), {T}, integer
 	keys: function<K>({K:any}): {K}
+	
+	quote: function(a: any): string
+	quote: function(a: any, b: any): string, string
+	quote: function(a: any, b: any, c: any): string, string, string
+	quote: function(...: any): string...
+	
+	pretty: function(a: any): string
+	pretty: function(a: any, b: any): string, string
+	pretty: function(a: any, b: any, c: any): string, string, string
+	pretty: function(...: any): string...
+	
+	pprint: function(...: any)
 end
 
 return common

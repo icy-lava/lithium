@@ -1,7 +1,11 @@
 local wrap, yield = coroutine.wrap, coroutine.yield
-local array = require('lithium.common').array
+local common = require 'lithium.common'
 
-local stringx = setmetatable({}, {__index = string})
+local stringx = setmetatable({
+	quote  = common.quote,
+	pretty = common.pretty,
+	pprint = common.pprint
+}, {__index = string})
 
 local function delimIterator(str, delim, plain)
 	yield()
@@ -76,7 +80,7 @@ function stringx.positionAt(str, i, newlinePattern)
 end
 
 function stringx.split(...)
-	return array(stringx.delim(...))
+	return common.array(stringx.delim(...))
 end
 
 function stringx.startsWith(str, prefix)

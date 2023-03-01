@@ -227,4 +227,69 @@ function common.pprint(...)
 	print(table.concat(values, ', '))
 end
 
+function common.read(path, bytes)
+	assert(path)
+	if bytes == nil then bytes = -1 end
+	
+	local stream, err = io.open(path, 'rb')
+	if not stream then
+		return nil, err
+	end
+	
+	local result
+	if bytes < 0 then
+		if bytes == -1 then
+			result, err = stream:read '*a'
+		else
+			local size = stream:seek 'end'
+			stream:seek 'set'
+			result, err = stream:read(size + bytes + 1)
+		end
+	else
+		result, err = stream:read(bytes)
+	end
+	
+	if not result then
+		stream:close()
+		return nil, err or 'could not read file'
+	end
+	
+	local status
+	status, err = stream:close()
+	if not status then
+		return nil, err
+	end
+	
+	return result
+end
+
+local function write(path, str, mode)
+	local stream, err = io.open(path, mode)
+	if not stream then
+		return false, err
+	end
+	
+	local status
+	status, err = stream:write(str)
+	if not status then
+		stream:close()
+		return false, err
+	end
+	
+	status, err = stream:close()
+	if not status then
+		return false, err
+	end
+	
+	return true
+end
+
+function common.write(path, str)
+	return write(path, str, 'wb')
+end
+
+function common.append(path, str)
+	return write(path, str, 'ab')
+end
+
 return common

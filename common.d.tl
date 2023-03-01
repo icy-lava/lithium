@@ -49,6 +49,10 @@ local record common
 	pretty: function(...: any): string...
 	
 	pprint: function(...: any)
+	
+	read: function(path: string, bytes: integer): string, string
+	write: function(path: string, str: string): boolean, string
+	append: function(path: string, str: string): boolean, string
 end
 
 return common

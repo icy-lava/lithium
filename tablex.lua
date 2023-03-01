@@ -1,20 +1,19 @@
 local common = require('lithium.common')
-local pack, unpack, isEmpty, index, set, delete, clear, ripairs, keys, array, empty = common.pack, common.unpack, common.isEmpty, common.index, common.set, common.delete, common.clear, common.ripairs, common.keys, common.array, common.empty
 
 local sort = table.sort
 
 local tablex = setmetatable({
-	pack = pack,
-	unpack = unpack,
-	isEmpty = isEmpty,
-	index = index,
-	set = set,
-	delete = delete,
-	clear = clear,
-	ripairs = ripairs,
-	keys = keys,
-	array = array,
-	empty = empty
+	pack    = common.pack,
+	unpack  = common.unpack,
+	isEmpty = common.isEmpty,
+	index   = common.index,
+	set     = common.set,
+	delete  = common.delete,
+	clear   = common.clear,
+	ripairs = common.ripairs,
+	keys    = common.keys,
+	array   = common.array,
+	empty   = common.empty,
 }, {__index = table})
 
 function tablex.copy(t)
@@ -33,15 +32,24 @@ function tablex.icopy(t)
 	return newT
 end
 
-function tablex.clone(value)
-	if 'table' ~= type(value) then
-		return value
+local function clone(t, refmap)
+	if refmap[t] then
+		return refmap[t]
 	end
 	local newT = {}
-	for k, v in pairs(value) do
-		newT[k] = tablex.clone(v)
+	refmap[t] = newT
+	for k, v in pairs(t) do
+		if type(v) == 'table' then
+			newT[k] = tablex.clone(v)
+		else
+			newT[k] = v
+		end
 	end
 	return newT
+end
+
+function tablex.clone(t)
+	return clone(t, {})
 end
 
 function tablex.invert(t)
@@ -87,8 +95,11 @@ function tablex.imap(t, func, ...)
 	local newT = {}
 	local len = 0
 	for i = 1, #t do
-		len = len + 1
-		newT[len] = func(t[i], ...)
+		local value = func(t[i], ...)
+		if value ~= nil then
+			len = len + 1
+			newT[len] = value
+		end
 	end
 	return newT
 end
@@ -140,15 +151,13 @@ function tablex.ireject(t, func, ...)
 end
 
 function tablex.sort(t, comp)
-	local newT = tablex.icopy(t)
 	if comp == nil or 'function' == type(comp) then
-		sort(newT, comp)
+		sort(t, comp)
 	else
-		sort(newT, function(a, b)
+		sort(t, function(a, b)
 			return a[comp] < b[comp]
 		end)
 	end
-	return newT
 end
 
 function tablex.reverse(t)

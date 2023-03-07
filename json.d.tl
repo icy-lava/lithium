@@ -1,12 +1,14 @@
 local record json
-	type JsonArray = {JsonValue}
-	type JsonObject = {string:JsonValue}
+	type Array = {Value}
+	type Object = {string:Value}
 	
-	-- NOTE: Teal doesn't allow us to union JsonArray and JsonObject, we use a map with a union key as a workaround
-	type JsonValue = {string|integer:JsonValue} | string | boolean | number | nil
+	-- NOTE: Teal doesn't allow us to union Array and Object, we use a map with a union key as a workaround
+	type Mixed = {string|integer:Value}
 	
-	decode: function(data: string): JsonValue
-	encode: function(JsonValue): string
+	type Value = string | number | boolean | Mixed
+	
+	encode: function(Value): string, string
+	decode: function(data: string): Value, string
 end
 
 return json

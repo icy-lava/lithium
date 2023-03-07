@@ -58,7 +58,7 @@ return {
 	ripairs = common.ripairs,
 	keys    = common.keys,
 	
-	-- lithium.tablex.*
+	-- lithium.table.*
 	copy    = tablex.copy,
 	icopy   = tablex.icopy,
 	clone   = tablex.clone,

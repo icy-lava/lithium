@@ -39,7 +39,7 @@ return {
 	pretty = common.pretty,
 	pprint = common.pprint,
 	
-	-- lithium.stringx.*
+	-- lithium.string.*
 	delim        = stringx.delim,
 	lines        = stringx.lines,
 	lineAt       = stringx.lineAt,

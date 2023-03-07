@@ -56,7 +56,7 @@ return {
 	tan        = math.tan,
 	tanh       = math.tanh,
 	
-	-- lithium.mathx.*
+	-- lithium.math.*
 	tau       = mathx.tau,
 	lerp      = mathx.lerp,
 	root      = mathx.root,

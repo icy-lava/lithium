@@ -1,4 +1,5 @@
 local _, table_clear = pcall(require, 'table.clear')
+local format = string.format
 
 local common = {}
 
@@ -142,9 +143,31 @@ local function singleToMulti(func)
 	end
 end
 
-local format = string.format
+local qmap = {
+	[7]  = 'a',
+	[8]  = 'b',
+	[9]  = 't',
+	[11] = 'v',
+	[12] = 'f',
+	[13] = 'r',
+}
 local function quote(value)
-	return format('%q', value)
+	local str = format('%q', value)
+	str = str:gsub('(\\+)([\n%d]+)', function(bslash, match)
+		if #bslash % 2 == 1 then
+			if string.byte(match) == 10 then
+				return bslash .. 'n' .. match:sub(2)
+			end
+			local num = tonumber(match:sub(1, 3))
+			if num then
+				local map = qmap[num]
+				if map then
+					return bslash .. map .. match:sub(4)
+				end
+			end
+		end
+	end)
+	return str
 end
 
 common.quote = singleToMulti(quote)

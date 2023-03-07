@@ -221,13 +221,14 @@ common.pretty = singleToMulti(pretty)
 
 function common.pprint(...)
 	local values = {}
-	for i = 1, select('#', ...) do
+	local vlen = select('#', ...)
+	for i = 1, vlen do
 		values[i] = pretty((select(i, ...)))
 	end
-	print(table.concat(values, ', '))
+	print(table.concat(values, ' ', 1, vlen))
 end
 
-function common.readBytes(path, bytes)
+function common.readFile(path, bytes)
 	assert(path)
 	if bytes == nil then bytes = -1 end
 	
@@ -263,7 +264,7 @@ function common.readBytes(path, bytes)
 	return result
 end
 
-local function write(path, str, mode)
+local function writeFile(path, str, mode)
 	local stream, err = io.open(path, mode)
 	if not stream then
 		return false, err
@@ -284,12 +285,12 @@ local function write(path, str, mode)
 	return true
 end
 
-function common.writeBytes(path, str)
-	return write(path, str, 'wb')
+function common.writeFile(path, str)
+	return writeFile(path, str, 'wb')
 end
 
-function common.appendBytes(path, str)
-	return write(path, str, 'ab')
+function common.appendFile(path, str)
+	return writeFile(path, str, 'ab')
 end
 
 return common

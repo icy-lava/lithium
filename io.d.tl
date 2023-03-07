@@ -1,7 +1,12 @@
 local common = require 'lithium.common'
 
 local record lio
-	
+	fprint: function(file: FILE, ...: any)
+	print: function(...: any)
+	eprint: function(...: any)
+	fprintf: function(file: FILE, format: string, ...: any)
+	printf: function(format: string, ...: any)
+	eprintf: function(format: string, ...: any)
 end
 
 return {
@@ -18,12 +23,20 @@ return {
 	stdout  = io.stdout,
 	tmpfile = io.tmpfile,
 	type    = io.type,
-	-- read    = io.read,
-	-- write   = io.write,
+	read    = io.read,
+	write   = io.write,
 	
 	-- lithium.common
-	readBytes   = common.readBytes,
-	writeBytes  = common.writeBytes,
-	appendBytes = common.appendBytes,
-	pprint      = common.pprint,
+	readFile   = common.readFile,
+	writeFile  = common.writeFile,
+	appendFile = common.appendFile,
+	pprint     = common.pprint,
+	
+	-- lithium.io.*
+	fprint  = lio.fprint,
+	print   = lio.print,
+	eprint  = lio.eprint,
+	fprintf = lio.fprintf,
+	printf  = lio.printf,
+	eprintf = lio.eprintf,
 }

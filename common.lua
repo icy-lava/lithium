@@ -219,13 +219,21 @@ end
 
 common.pretty = singleToMulti(pretty)
 
-function common.pprint(...)
+function common.fpprint(file, ...)
 	local values = {}
 	local vlen = select('#', ...)
 	for i = 1, vlen do
 		values[i] = pretty((select(i, ...)))
 	end
-	print(table.concat(values, ' ', 1, vlen))
+	file:write(table.concat(values, ' ', 1, vlen), '\n')
+end
+
+function common.pprint(...)
+	common.fpprint(io.stdout, ...)
+end
+
+function common.epprint(...)
+	common.fpprint(io.stderr, ...)
 end
 
 function common.readFile(path, bytes)

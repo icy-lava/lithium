@@ -48,7 +48,9 @@ local record common
 	pretty: function(a: any, b: any, c: any): string, string, string
 	pretty: function(...: any): string...
 	
+	fpprint: function(file: FILE, ...: any)
 	pprint: function(...: any)
+	epprint: function(...: any)
 	
 	readFile: function(path: string, bytes: integer): string, string
 	writeFile: function(path: string, str: string): boolean, string

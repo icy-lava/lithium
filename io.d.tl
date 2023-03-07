@@ -30,7 +30,9 @@ return {
 	readFile   = common.readFile,
 	writeFile  = common.writeFile,
 	appendFile = common.appendFile,
+	fpprint    = common.fpprint,
 	pprint     = common.pprint,
+	epprint    = common.epprint,
 	
 	-- lithium.io.*
 	fprint  = lio.fprint,

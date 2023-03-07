@@ -1,10 +1,12 @@
 local common = require 'lithium.common'
 
 local lio = setmetatable({
-	readFile = common.readFile,
-	writeFile = common.writeFile,
+	readFile   = common.readFile,
+	writeFile  = common.writeFile,
 	appendFile = common.appendFile,
-	pprint = common.pprint,
+	fpprint    = common.fpprint,
+	pprint     = common.pprint,
+	epprint    = common.epprint,
 }, {__index = io})
 
 function lio.fprint(file, ...)

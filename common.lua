@@ -43,7 +43,7 @@ function common.array2(...)
 	return arr
 end
 
-function common.index(t, ...)
+function common.get(t, ...)
 	for i = 1, select('#', ...) do
 		if type(t) ~= 'table' then
 			return nil

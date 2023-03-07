@@ -13,10 +13,10 @@ local record common
 	array: function<T>(function(...: any): (T, any...), ...: any): {T}
 	array2: function<A, B>(function(...: any): (A, B, any...), ...: any): {{A, B}}
 	
-	index: function<K, V>(t: {K:V}, k: K): V
-	index: function<K1, K2, V>(t: {K1:{K2:V}}, k1: K1, k2: K2): V
-	index: function<K1, K2, K3, V>(t: {K1:{K2:{K3:V}}}, k1: K1, k2: K2, k3: K3): V
-	index: function(t: table, ...: any): any
+	get: function<K, V>(t: {K:V}, k: K): V
+	get: function<K1, K2, V>(t: {K1:{K2:V}}, k1: K1, k2: K2): V
+	get: function<K1, K2, K3, V>(t: {K1:{K2:{K3:V}}}, k1: K1, k2: K2, k3: K3): V
+	get: function(t: table, ...: any): any
 	
 	set: function<V>(t: table, v: V): V
 	set: function<K, V>(t: {K:V}, k: K, v: V): {K:V}

@@ -49,7 +49,7 @@ return {
 	isEmpty = common.isEmpty,
 	array   = common.array,
 	array2  = common.array2,
-	index   = common.index,
+	get     = common.get,
 	set     = common.set,
 	delete  = common.delete,
 	clear   = common.clear,

@@ -1,6 +1,6 @@
 local common = require 'lithium.common'
 
-local record iox
+local record lio
 	
 end
 

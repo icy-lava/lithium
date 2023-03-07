@@ -1,9 +1,9 @@
 local common = require 'lithium.common'
 
-local iox = setmetatable({
+local lio = setmetatable({
 	read = common.read,
 	write = common.write,
 	append = common.append,
 }, {__index = io})
 
-return iox
+return lio

@@ -5,10 +5,10 @@
 -- A version 2 should lex smaller tokens that actually get parsed (into AST or final data),
 -- possibly also preserving the order of sections, warning of redefinitions, etc.
 
-local stringx = require 'lithium.stringx'
-local tablex = require 'lithium.tablex'
+local string = require 'lithium.string'
+local table = require 'lithium.table'
 local lexer = require 'lithium.lexer'
-local iox = require 'lithium.iox'
+local io = require 'lithium.io'
 
 local types = {
 	{'blank', '[^%S\r\n]*\r?\n'},
@@ -25,8 +25,8 @@ local type ININamespace = {string:string | ININamespace}
 
 local function parseKey(key: string): {string}, string
 	local keys : {string} = {}
-	for subkey in stringx.delim(key, '.') do
-		subkey = stringx.trimNonEmpty(subkey)
+	for subkey in string.delim(key, '.') do
+		subkey = string.trimNonEmpty(subkey)
 		if not subkey then return nil, 'invalid key' end
 		table.insert(keys, subkey:lower())
 	end
@@ -38,7 +38,7 @@ local function parseString(str: string): ININamespace, string, integer
 	local tokens, _, pos = lexer.lexString(str, types)
 	
 	if not tokens then
-		local line = stringx.lineAt(str, pos)
+		local line = string.lineAt(str, pos)
 		return nil, 'failed to lex line ' .. line, line
 	end
 	
@@ -49,22 +49,22 @@ local function parseString(str: string): ININamespace, string, integer
 		if token.type == 'section' then
 			local newSection = parseKey(token.captures[1])
 			if not newSection then
-				local line = stringx.lineAt(str, token.start)
+				local line = string.lineAt(str, token.start)
 				return nil, 'invalid assignment key at line ' .. line, line
 			end
 			currentSection = newSection
 		elseif token.type == 'assign' then
 			local keys = parseKey(token.captures[1])
 			if not keys then
-				local line = stringx.lineAt(str, token.start)
+				local line = string.lineAt(str, token.start)
 				return nil, 'invalid assignment key at line ' .. line, line
 			end
-			local setPath = tablex.icopy(currentSection)
+			local setPath = table.icopy(currentSection)
 			for j = 1, #keys do
 				table.insert(setPath, keys[j])
 			end
-			table.insert(setPath, stringx.trim(token.captures[2]))
-			tablex.set(data, tablex.unpack(setPath))
+			table.insert(setPath, string.trim(token.captures[2]))
+			table.set(data, table.unpack(setPath))
 		end
 	end
 	return data
@@ -74,7 +74,7 @@ return {
 	ININamespace = ININamespace,
 	parseString = parseString,
 	parseFile = function(filename: string): ININamespace, string, integer
-		local data, err = iox.readBytes(filename)
+		local data, err = io.readBytes(filename)
 		if not data then
 			return nil, err
 		end

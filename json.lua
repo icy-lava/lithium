@@ -1,8 +1,8 @@
 local comb = require('lithium.comb')
-local tablex = require('lithium.tablex')
+local table = require('lithium.table')
 
 local literal, pattern, uptoPattern, whitespace, sequence, eof = comb.literal, comb.pattern, comb.uptoPattern, comb.whitespace, comb.sequence, comb.eof
-local concat, insert, imap = tablex.concat, tablex.insert, tablex.imap
+local concat, insert, imap = table.concat, table.insert, table.imap
 
 local json = {}
 

@@ -2,7 +2,7 @@ local common = require('lithium.common')
 
 local sort = table.sort
 
-local tablex = setmetatable({
+local ltable = setmetatable({
 	pack    = common.pack,
 	unpack  = common.unpack,
 	isEmpty = common.isEmpty,
@@ -16,7 +16,7 @@ local tablex = setmetatable({
 	empty   = common.empty,
 }, {__index = table})
 
-function tablex.copy(t)
+function ltable.copy(t)
 	local newT = {}
 	for k, v in pairs(t) do
 		newT[k] = v
@@ -24,7 +24,7 @@ function tablex.copy(t)
 	return newT
 end
 
-function tablex.icopy(t)
+function ltable.icopy(t)
 	local newT = {}
 	for i = 1, #t do
 		newT[i] = t[i]
@@ -40,7 +40,7 @@ local function clone(t, refmap)
 	refmap[t] = newT
 	for k, v in pairs(t) do
 		if type(v) == 'table' then
-			newT[k] = tablex.clone(v)
+			newT[k] = ltable.clone(v)
 		else
 			newT[k] = v
 		end
@@ -48,11 +48,11 @@ local function clone(t, refmap)
 	return newT
 end
 
-function tablex.clone(t)
+function ltable.clone(t)
 	return clone(t, {})
 end
 
-function tablex.invert(t)
+function ltable.invert(t)
 	local newT = {}
 	for k, v in pairs(t) do
 		newT[v] = k
@@ -60,8 +60,8 @@ function tablex.invert(t)
 	return newT
 end
 
-function tablex.merge(...)
-	local result = tablex.copy((...))
+function ltable.merge(...)
+	local result = ltable.copy((...))
 	for i = 2, select('#', ...) do
 		for k, v in pairs((select(i, ...))) do
 			result[k] = v
@@ -70,8 +70,8 @@ function tablex.merge(...)
 	return result
 end
 
-function tablex.imerge(...)
-	local result = tablex.icopy((...))
+function ltable.imerge(...)
+	local result = ltable.icopy((...))
 	local count = #result
 	for i = 2, select('#', ...) do
 		local subT = select(i, ...)
@@ -83,7 +83,7 @@ function tablex.imerge(...)
 	return result
 end
 
-function tablex.map(t, func, ...)
+function ltable.map(t, func, ...)
 	local newT = {}
 	for key, value in pairs(t) do
 		newT[key] = func(value, ...)
@@ -91,7 +91,7 @@ function tablex.map(t, func, ...)
 	return newT
 end
 
-function tablex.imap(t, func, ...)
+function ltable.imap(t, func, ...)
 	local newT = {}
 	local len = 0
 	for i = 1, #t do
@@ -104,7 +104,7 @@ function tablex.imap(t, func, ...)
 	return newT
 end
 
-function tablex.filter(t, func, ...)
+function ltable.filter(t, func, ...)
 	local newT = {}
 	for key, value in pairs(t) do
 		if func(value, ...) then
@@ -114,7 +114,7 @@ function tablex.filter(t, func, ...)
 	return newT
 end
 
-function tablex.ifilter(t, func, ...)
+function ltable.ifilter(t, func, ...)
 	local newT = {}
 	local newCount = 0
 	for i = 1, #t do
@@ -127,7 +127,7 @@ function tablex.ifilter(t, func, ...)
 	return newT
 end
 
-function tablex.reject(t, func, ...)
+function ltable.reject(t, func, ...)
 	local newT = {}
 	for key, value in pairs(t) do
 		if not func(value, ...) then
@@ -137,7 +137,7 @@ function tablex.reject(t, func, ...)
 	return newT
 end
 
-function tablex.ireject(t, func, ...)
+function ltable.ireject(t, func, ...)
 	local newT = {}
 	local newCount = 0
 	for i = 1, #t do
@@ -150,7 +150,7 @@ function tablex.ireject(t, func, ...)
 	return newT
 end
 
-function tablex.sort(t, comp)
+function ltable.sort(t, comp)
 	if comp == nil or 'function' == type(comp) then
 		sort(t, comp)
 	else
@@ -160,7 +160,7 @@ function tablex.sort(t, comp)
 	end
 end
 
-function tablex.reverse(t)
+function ltable.reverse(t)
 	local newT = {}
 	local len = 0
 	for i = #t, 1, -1 do
@@ -171,7 +171,7 @@ function tablex.reverse(t)
 end
 
 local defaultReducer = function(a, b) return a + b end
-function tablex.reduce(t, reducer)
+function ltable.reduce(t, reducer)
 	if reducer == nil then
 		reducer = defaultReducer
 	end
@@ -183,6 +183,6 @@ function tablex.reduce(t, reducer)
 end
 
 local _, table_new = pcall(require, 'table.new')
-tablex.new = table_new or function() return {} end
+ltable.new = table_new or function() return {} end
 
-return tablex
+return ltable

@@ -1,7 +1,7 @@
-local tablex = require('lithium.tablex')
-local pack, remove, insert, copy = tablex.pack, tablex.remove, tablex.insert, tablex.copy
+local table = require('lithium.table')
+local pack, remove, insert, copy = table.pack, table.remove, table.insert, table.copy
 
-local positionAt = require('lithium.stringx').positionAt
+local positionAt = require('lithium.string').positionAt
 
 local comb = {}
 local Parser

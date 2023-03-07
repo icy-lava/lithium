@@ -1,6 +1,6 @@
 local common = require 'lithium.common'
 
-local record tablex
+local record ltable
 	copy: function<K, V>(t: {K:V}): {K:V}
 	icopy: function<T>(t: {T}): {T}
 	clone: function<K, V>(t: {K:V}): {K:V}
@@ -59,22 +59,22 @@ return {
 	keys    = common.keys,
 	
 	-- lithium.table.*
-	copy    = tablex.copy,
-	icopy   = tablex.icopy,
-	clone   = tablex.clone,
-	invert  = tablex.invert,
+	copy    = ltable.copy,
+	icopy   = ltable.icopy,
+	clone   = ltable.clone,
+	invert  = ltable.invert,
 
-	merge   = tablex.merge,
-	imerge  = tablex.imerge,
-	map     = tablex.map,
-	imap    = tablex.imap,
-	filter  = tablex.filter,
-	ifilter = tablex.ifilter,
-	reject  = tablex.reject,
-	ireject = tablex.ireject,
-	sort    = tablex.sort,
-	reverse = tablex.reverse,
+	merge   = ltable.merge,
+	imerge  = ltable.imerge,
+	map     = ltable.map,
+	imap    = ltable.imap,
+	filter  = ltable.filter,
+	ifilter = ltable.ifilter,
+	reject  = ltable.reject,
+	ireject = ltable.ireject,
+	sort    = ltable.sort,
+	reverse = ltable.reverse,
 
-	reduce  = tablex.reduce,
-	new     = tablex.new,
+	reduce  = ltable.reduce,
+	new     = ltable.new,
 }

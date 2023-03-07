@@ -1,8 +1,8 @@
 local comb = require('lithium.comb')
 local Parser, pattern, maybe_ws, literal = comb.Parser, comb.pattern, comb.maybe_ws, comb.literal
 
-local tablex = require('lithium.tablex')
-local map, unpack = tablex.map, tablex.unpack
+local table = require('lithium.table')
+local map, unpack = table.map, table.unpack
 
 local expr = {}
 
@@ -182,7 +182,7 @@ end
 
 function expr.eval(str, env)
 	if env == nil then
-		env = require('lithium.mathx')
+		env = require('lithium.math')
 	end
 	local ast, err = expr.compile(str)
 	if ast == nil then return nil, err end

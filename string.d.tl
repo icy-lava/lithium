@@ -1,6 +1,6 @@
 local common = require 'lithium.common'
 
-local record stringx
+local record lstring
 	delim: function(str: string, delim: string, isPattern: boolean): function(): string
 	lines: function(str: string): function(): string
 	lineAt: function(str: string, i: integer, newlinePattern: string): integer
@@ -40,18 +40,18 @@ return {
 	pprint = common.pprint,
 	
 	-- lithium.string.*
-	delim        = stringx.delim,
-	lines        = stringx.lines,
-	lineAt       = stringx.lineAt,
-	positionAt   = stringx.positionAt,
-	split        = stringx.split,
+	delim        = lstring.delim,
+	lines        = lstring.lines,
+	lineAt       = lstring.lineAt,
+	positionAt   = lstring.positionAt,
+	split        = lstring.split,
 	
-	startsWith   = stringx.startsWith,
-	endsWiths    = stringx.endsWiths,
-	contains     = stringx.contains,
+	startsWith   = lstring.startsWith,
+	endsWiths    = lstring.endsWiths,
+	contains     = lstring.contains,
 	
-	trimLeft     = stringx.trimLeft,
-	trimRight    = stringx.trimRight,
-	trim         = stringx.trim,
-	trimNonEmpty = stringx.trimNonEmpty,
+	trimLeft     = lstring.trimLeft,
+	trimRight    = lstring.trimRight,
+	trim         = lstring.trim,
+	trimNonEmpty = lstring.trimNonEmpty,
 }

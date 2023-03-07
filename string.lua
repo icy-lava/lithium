@@ -1,7 +1,7 @@
 local wrap, yield = coroutine.wrap, coroutine.yield
 local common = require 'lithium.common'
 
-local stringx = setmetatable({
+local lstring = setmetatable({
 	quote  = common.quote,
 	pretty = common.pretty,
 	pprint = common.pprint
@@ -35,17 +35,17 @@ local function delimIterator(str, delim, plain)
 	end
 end
 
-function stringx.delim(str, delim, isPattern)
+function lstring.delim(str, delim, isPattern)
 	local iter = wrap(delimIterator)
 	iter(str, delim, not isPattern)
 	return iter
 end
 
-function stringx.lines(str)
-	return stringx.delim(str, '\r?\n', true)
+function lstring.lines(str)
+	return lstring.delim(str, '\r?\n', true)
 end
 
-function stringx.lineAt(str, i, newlinePattern)
+function lstring.lineAt(str, i, newlinePattern)
 	if newlinePattern == nil then
 		newlinePattern = '\n'
 	end
@@ -56,7 +56,7 @@ function stringx.lineAt(str, i, newlinePattern)
 	return line
 end
 
-function stringx.positionAt(str, i, newlinePattern)
+function lstring.positionAt(str, i, newlinePattern)
 	if newlinePattern == nil then
 		newlinePattern = '\n'
 	end
@@ -79,40 +79,40 @@ function stringx.positionAt(str, i, newlinePattern)
 	return line, i - j + 1
 end
 
-function stringx.split(...)
-	return common.array(stringx.delim(...))
+function lstring.split(...)
+	return common.array(lstring.delim(...))
 end
 
-function stringx.startsWith(str, prefix)
+function lstring.startsWith(str, prefix)
 	return prefix == str:sub(1, #prefix)
 end
 
-function stringx.endsWith(str, suffix)
+function lstring.endsWith(str, suffix)
 	return suffix == str:sub(-#suffix, -1)
 end
 
-function stringx.contains(str, substr)
+function lstring.contains(str, substr)
 	return not not str:find(substr, 1, true)
 end
 
-function stringx.trimLeft(str)
+function lstring.trimLeft(str)
 	return (str:gsub('^%s+', '', 1))
 end
 
-function stringx.trimRight(str)
+function lstring.trimRight(str)
 	return (str:gsub('%s+$', '', 1))
 end
 
-function stringx.trim(str)
-	return stringx.trimLeft(stringx.trimRight(str))
+function lstring.trim(str)
+	return lstring.trimLeft(lstring.trimRight(str))
 end
 
-function stringx.trimNonEmpty(str)
-	str = stringx.trim(str)
+function lstring.trimNonEmpty(str)
+	str = lstring.trim(str)
 	if str == '' then
 		return nil
 	end
 	return str
 end
 
-return stringx
+return lstring

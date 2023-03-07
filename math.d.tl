@@ -1,4 +1,4 @@
-local record mathx
+local record lmath
 	tau: number
 	
 	lerp: function<T>(t: number, a: number, b: number): number
@@ -57,16 +57,16 @@ return {
 	tanh       = math.tanh,
 	
 	-- lithium.math.*
-	tau       = mathx.tau,
-	lerp      = mathx.lerp,
-	root      = mathx.root,
-	cbrt      = mathx.cbrt,
-	ternary   = mathx.ternary,
-	isnan     = mathx.isnan,
-	sign      = mathx.sign,
-	clamp     = mathx.clamp,
-	wrap      = mathx.wrap,
-	map       = mathx.map,
-	round     = mathx.round,
-	roundStep = mathx.roundStep,
+	tau       = lmath.tau,
+	lerp      = lmath.lerp,
+	root      = lmath.root,
+	cbrt      = lmath.cbrt,
+	ternary   = lmath.ternary,
+	isnan     = lmath.isnan,
+	sign      = lmath.sign,
+	clamp     = lmath.clamp,
+	wrap      = lmath.wrap,
+	map       = lmath.map,
+	round     = lmath.round,
+	roundStep = lmath.roundStep,
 }

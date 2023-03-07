@@ -25,9 +25,9 @@ git clone https://github.com/icy-lava/lithium.git lithium
 require('tl').loader() -- If using uncompiled Teal files
 
 local lithium = require('lithium') -- or 'lithium.init' if it fails
-local string, table, math = lithium.string, lithium.table, lithium.math
+local lstring, lio = lithium.string, lithium.io
 
-for line in string.lines('hello\nworld') do
-    print(line)
+for line in lstring.lines('hello\nworld') do
+    lio.pprint(line)
 end
 ```

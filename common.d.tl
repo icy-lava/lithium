@@ -50,9 +50,9 @@ local record common
 	
 	pprint: function(...: any)
 	
-	read: function(path: string, bytes: integer): string, string
-	write: function(path: string, str: string): boolean, string
-	append: function(path: string, str: string): boolean, string
+	readBytes: function(path: string, bytes: integer): string, string
+	writeBytes: function(path: string, str: string): boolean, string
+	appendBytes: function(path: string, str: string): boolean, string
 end
 
 return common

@@ -227,7 +227,7 @@ function common.pprint(...)
 	print(table.concat(values, ', '))
 end
 
-function common.read(path, bytes)
+function common.readBytes(path, bytes)
 	assert(path)
 	if bytes == nil then bytes = -1 end
 	
@@ -284,11 +284,11 @@ local function write(path, str, mode)
 	return true
 end
 
-function common.write(path, str)
+function common.writeBytes(path, str)
 	return write(path, str, 'wb')
 end
 
-function common.append(path, str)
+function common.appendBytes(path, str)
 	return write(path, str, 'ab')
 end
 

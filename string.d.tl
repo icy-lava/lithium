@@ -37,7 +37,6 @@ return {
 	-- lithium.common
 	quote = common.quote,
 	pretty = common.pretty,
-	pprint = common.pprint,
 	
 	-- lithium.string.*
 	delim        = lstring.delim,

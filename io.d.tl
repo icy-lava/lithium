@@ -25,4 +25,5 @@ return {
 	readBytes   = common.readBytes,
 	writeBytes  = common.writeBytes,
 	appendBytes = common.appendBytes,
+	pprint      = common.pprint,
 }

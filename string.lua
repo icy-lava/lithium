@@ -4,7 +4,6 @@ local common = require 'lithium.common'
 local lstring = setmetatable({
 	quote  = common.quote,
 	pretty = common.pretty,
-	pprint = common.pprint
 }, {__index = string})
 
 local function delimIterator(str, delim, plain)

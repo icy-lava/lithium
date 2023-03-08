@@ -40,7 +40,7 @@ local function clone(t, refmap)
 	refmap[t] = newT
 	for k, v in pairs(t) do
 		if type(v) == 'table' then
-			newT[k] = ltable.clone(v)
+			newT[k] = clone(v, refmap)
 		else
 			newT[k] = v
 		end

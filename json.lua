@@ -212,4 +212,12 @@ function json.encode(val, indent)
 	return nil, 'can not encode ' .. typ .. ' to json'
 end
 
+function json.encodeFile(path, val)
+	local str, err = json.encode(val)
+	if not str then
+		return false, err
+	end
+	return common.writeFile(path, str)
+end
+
 return json

@@ -381,6 +381,34 @@ function comb.pattern(str)
 	end)
 end
 
+function comb.uptoLiteral(str)
+	return Parser.new(function(state)
+		local data, index = state.data, state.index
+		local start = data:find(str, index, true)
+		if not start then
+			start = #data + 1
+		end
+		
+		state.index = start
+		state.result = data:sub(index, start - 1)
+		return state
+	end)
+end
+
+function comb.uptoPattern(str)
+	return Parser.new(function(state)
+		local data, index = state.data, state.index
+		local start = data:find(str, index)
+		if not start then
+			start = #data + 1
+		end
+		
+		state.index = start
+		state.result = data:sub(index, start - 1)
+		return state
+	end)
+end
+
 function comb.sequence(parsers)
 	return Parser.new(function(state)
 		local results = {}
@@ -428,7 +456,7 @@ function comb.enclosed(left, right)
 end
 
 -- Big chonker, but this is a really helpful function for parsing binary expressions with precedence
-comb.binary = function(atom, precDef)
+function comb.binary(atom, precDef)
 	local precMap = {}
 	local allParsers = {}
 	for prec, parsers in ipairs(precDef) do

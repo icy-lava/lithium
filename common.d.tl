@@ -55,6 +55,8 @@ local record common
 	readFile: function(path: string, bytes: integer): string, string
 	writeFile: function(path: string, str: string): boolean, string
 	appendFile: function(path: string, str: string): boolean, string
+	
+	isWindows: function(): boolean
 end
 
 return common

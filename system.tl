@@ -1,16 +1,7 @@
 local common = require 'lithium.common'
+local isWindows = common.isWindows
 local format = string.format
 local concat = table.concat
-
-local isWindows : boolean
-do
-	local jit = (_G as table).jit as table
-	if jit then
-		isWindows = jit.os == 'Windows'
-	else
-		isWindows = os.getenv('OS') == 'Windows_NT'
-	end
-end
 
 local hasShell = os.execute() ~= 0
 
@@ -24,7 +15,7 @@ return {
 			args[i] = format('"%s"', args[i])
 		end
 		local command = concat(args, ' ', 1, args.n)
-		if isWindows then
+		if isWindows() then
 			command = format('"%s"', command)
 		end
 		return os.execute(command)

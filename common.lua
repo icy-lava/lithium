@@ -324,4 +324,16 @@ function common.appendFile(path, str)
 	return writeFile(path, str, 'ab')
 end
 
+local isWindows
+function common.isWindows()
+	if isWindows == nil then
+		if jit then
+			isWindows = jit.os == 'Windows'
+		else
+			isWindows = os.getenv('OS') == 'Windows_NT'
+		end
+	end
+	return isWindows
+end
+
 return common

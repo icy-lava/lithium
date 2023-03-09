@@ -85,6 +85,17 @@ function Parser:mapError(mapper)
 	end)
 end
 
+function Parser:chain(resultToParser)
+	return Parser.new(function(state)
+		local newState, err = self(state)
+		if not newState then
+			return nil, err
+		end
+		local nextParser = resultToParser(newState.result)
+		return nextParser(newState)
+	end)
+end
+
 function Parser:noConsume()
 	return Parser.new(function(state)
 		local newState, err = self(state)
@@ -162,6 +173,35 @@ function Parser:tag(name)
 	end)
 end
 
+function Parser:delimited(delimiter)
+	local delimParser = delimiter * self
+	return Parser.new(function(state)
+		local newState, err = self(state)
+		if not newState then
+			return nil, err
+		end
+		
+		state = newState
+		local results = {state.result}
+		while true do
+			newState = delimParser(state)
+			if not newState then
+				break
+			end
+			state = newState
+			table.insert(results, state.result)
+		end
+		
+		state.result = results
+		return state
+	end)
+end
+
+function Parser:enclosed(left, right)
+	right = right or left
+	return comb.sequence {left, self, right} :second()
+end
+
 function Parser:prefix(other)
 	return other * self
 end
@@ -170,10 +210,42 @@ function Parser:suffix(other)
 	return comb.sequence {self, other} :first()
 end
 
+function Parser:optional()
+	return Parser.new(function(state)
+		local newState = self(state)
+		if newState then
+			state = newState
+		else
+			state.result = nil
+		end
+		return state
+	end)
+end
+
+function Parser:wsl()
+	return self:prefix(comb.mws)
+end
+
+function Parser:wsr()
+	return self:suffix(comb.mws)
+end
+
+function Parser:wse()
+	return self:enclosed(comb.mws)
+end
+
 function Parser:index(key)
 	return self:map(function(result)
 		return result[key]
 	end)
+end
+
+function Parser:match()
+	return self:index('match')
+end
+
+function Parser:captures()
+	return self:index('captures')
 end
 
 function Parser:first()
@@ -221,18 +293,6 @@ end
 
 function Parser:null()
 	return self:value(nil)
-end
-
-function Parser:upper()
-	return self:map(function(result)
-		return result:upper()
-	end)
-end
-
-function Parser:lower()
-	return self:map(function(result)
-		return result:lower()
-	end)
 end
 
 function Parser:gsub(pattern, repl, n)
@@ -321,6 +381,76 @@ function comb.proxy(getParser)
 	end)
 end
 
+function comb.delimited(delimiter)
+	return function(parser)
+		return parser:delimited(delimiter)
+	end
+end
+
+function comb.enclosed(left, right)
+	return function(parser)
+		return parser:enclosed(left, right)
+	end
+end
+
+-- Big chonker, but this is a really helpful function for parsing binary expressions with precedence
+comb.binary = function(atom, precDef)
+	local precMap = {}
+	local allParsers = {}
+	for prec, parsers in ipairs(precDef) do
+		for i = 1, #parsers do
+			local parser = parsers[i]
+			precMap[parser] = prec
+			table.insert(allParsers, parser)
+		end
+	end
+	
+	local function maybe_binary(state, prec)
+		local oldState = state
+		local matched = false
+		local otherPrec
+		for i = 1, #allParsers do
+			local parser = allParsers[i]
+			local newState = parser(state)
+			if newState then
+				state = newState
+				matched = true
+				otherPrec = precMap[parser]
+				break
+			end
+		end
+		if matched and otherPrec > prec then
+			local operator = state.result
+			local newState, err = atom(state)
+			if not newState then
+				return nil, err
+			end
+			state = newState
+			newState, err = maybe_binary(state, otherPrec)
+			if not newState then
+				return nil, err
+			end
+			state = newState
+			state.result = {
+				operator = operator,
+				left = oldState.result,
+				right = state.result
+			}
+			return maybe_binary(state, prec)
+		end
+		return oldState
+	end
+	
+	return Parser(function(state)
+		local newState, err = atom(state)
+		if not newState then
+			return nil, err
+		end
+		state = newState
+		return maybe_binary(state, 0)
+	end)
+end
+
 comb.digit = comb.pattern('%d'):index('match')
 comb.digit = comb.digit % function(err)
 	err.message = "did not match digit"
@@ -350,6 +480,8 @@ comb.whitespace = comb.whitespace % function(err)
 	err.message = "did not match whitespace"
 	return err
 end
+
+comb.mws = comb.pattern('%s*'):index('match')
 
 comb.cr = comb.literal('\r')
 comb.cr = comb.cr % function(err)

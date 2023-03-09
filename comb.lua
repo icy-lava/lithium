@@ -310,18 +310,32 @@ function Parser:concat(sep)
 	end)
 end
 
+local function pass(value)
+	return value
+end
+
 function Parser:default(value)
+	local clone = pass
+	if type(value) == 'table' then
+		clone = ltable.clone
+		value = clone(value)
+	end
 	return self:map(function(result)
 		if result == nil then
-			result = value
+			result = clone(value)
 		end
 		return result
 	end)
 end
 
 function Parser:value(value)
+	local clone = pass
+	if type(value) == 'table' then
+		clone = ltable.clone
+		value = clone(value)
+	end
 	return self:map(function(_)
-		return value
+		return clone(value)
 	end)
 end
 

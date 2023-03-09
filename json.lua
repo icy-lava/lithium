@@ -1,31 +1,29 @@
 local comb = require('lithium.comb')
-local table = require('lithium.table')
-
-local literal, pattern, uptoPattern, whitespace, sequence, eof = comb.literal, comb.pattern, comb.uptoPattern, comb.whitespace, comb.sequence, comb.eof
-local concat, insert, imap = table.concat, table.insert, table.imap
+local literal, pattern = comb.literal, comb.pattern
+local common = require 'lithium.common'
+local ltable = require 'lithium.table'
 
 local json = {}
 
-local maybe_ws = whitespace:maybe():default('')
 local comma = literal(',')
-local comma_ws = comma:surround(maybe_ws)
+local comma_ws = comma:wse()
 
-local fals = literal('false') / function() return false end
-local tru = literal('true') / function() return true end
+local fals = literal 'false' :value(false)
+local tru  = literal 'true'  :value(true)
 local boolean = tru + fals
-boolean = boolean:tag('boolean')
+boolean = boolean:tag 'boolean'
 
-local null = literal('null') / function() return nil end
-null = null:tag('null')
+local null = literal 'null' :null()
+null = null:tag 'null'
 
-local number = sequence({
-	pattern('%-?%d+'):index('match'),
-	pattern('%.%d+'):index('match'):maybe():default(''),
-	pattern('[Ee][%-%+]?%d+'):index('match'):maybe():default('')
-}) / concat / tonumber
+local number = comb.sequence({
+	pattern '%-?%d+'         :match(),
+	pattern '%.%d+'          :match():optional():default '',
+	pattern '[Ee][%-%+]?%d+' :match():optional():default '',
+}) / table.concat / tonumber
 number = number:tag('number')
 
-local escape = literal('\\') * (pattern('["\\/bfnrt]') + pattern('u%x%x%x%x')):index('match')
+local escape = literal('\\') * (pattern('["\\/bfnrt]') + pattern('u%x%x%x%x')):match()
 escape = escape / function(result)
 	if 'u' == result:sub(1, 1) then
 		return '?' -- FIXME: decode unicode escape properly
@@ -46,63 +44,53 @@ escape = escape / function(result)
 	return result
 end
 
-local strin = sequence({
-	literal('"'),
-	(escape + uptoPattern('["\\%c]')) ^ 0 / concat,
-	literal('"')
-}):second()
+local strin = ((escape + comb.uptoPattern('["\\%c]')) ^ 0 / table.concat):enclosed(literal '"')
 strin = strin:tag('string')
 
-local array, object
-local value = comb.proxy(function() return array + object + boolean + null + number + strin end)
 
-array = sequence({
-	literal('['),
-	maybe_ws,
-	(value:delimited(comma_ws)):maybe():default({}),
-	maybe_ws,
-	literal(']')
-}):third()
+local array, object
+local value = comb.proxy(function()
+	return comb.choice {array, object, boolean, null, number, strin}
+end)
+
+array = value
+:delimited(comma_ws)
+:optional()
+:default({})
+:wse()
+:enclosed(literal '[', literal ']')
 array = array:tag('array')
 
-local record = sequence({
+local record = comb.sequence({
 	strin:index('value'),
-	maybe_ws,
-	literal(':'),
-	maybe_ws,
+	literal(':'):wse(),
 	value
 }) / function(result)
 	return {
 		key = result[1],
-		value = result[5]
+		value = result[3]
 	}
 end
 
-object = sequence({
-	literal('{'),
-	maybe_ws,
-	(record:delimited(comma_ws)):maybe():default({}),
-	maybe_ws,
-	literal('}')
-}):third()
+object = record
+:delimited(comma_ws)
+:optional()
+:default({})
+:wse()
+:enclosed(literal '{', literal '}')
 object = object:tag('object')
 
-function json.parse(str)
-	local state = {
-		data = str,
-		index = 1
-	}
-	local err
-	state, err = value:surround(maybe_ws, maybe_ws * eof):run(state)
-	if not (state) then
+function json.parse(str, source)
+	local newState, err = value:enclosed(comb.mws, comb.mws * comb.eof):parseData(str, source)
+	if not newState then
 		return nil, err
 	end
-	return state.result
+	return newState.result
 end
 
 local function decodeValue(val)
 	if 'array' == val.tag then
-		return imap(val.value, decodeValue)
+		return ltable.imap(val.value, decodeValue)
 	elseif 'object' == val.tag then
 		local obj = {}
 		for i = 1, #val.value do
@@ -110,24 +98,31 @@ local function decodeValue(val)
 			obj[rec.key] = decodeValue(rec.value)
 		end
 		return obj
-	else
-		return val.value
 	end
+	return val.value
 end
 
-function json.decode(str)
-	local result, err = json.parse(str)
-	if not (result) then
+function json.decode(str, source)
+	local result, err = json.parse(str, source)
+	if not result then
 		return nil, err
 	end
 	return decodeValue(result)
+end
+
+function json.decodeFile(path)
+	local data, err = common.readFile(path)
+	if not data then
+		return nil, err
+	end
+	return json.decode(data, path)
 end
 
 local function ind(level)
 	if level == nil then
 		level = 0
 	end
-	return ('\t'):rep(level)
+	return ('    '):rep(level)
 end
 
 function json.encode(val, indent)
@@ -186,7 +181,7 @@ function json.encode(val, indent)
 					return nil, err
 				end
 			end
-			return "[" .. tostring(concat(t, ', ', 1, maxIndex)) .. "]"
+			return "[" .. tostring(table.concat(t, ', ', 1, maxIndex)) .. "]"
 		else
 			local t = {}
 			for k, v in pairs(val) do
@@ -204,9 +199,9 @@ function json.encode(val, indent)
 				if not (v) then
 					return nil, err
 				end
-				insert(t, tostring(ind(indent + 1)) .. tostring(k) .. ": " .. tostring(v))
+				table.insert(t, tostring(ind(indent + 1)) .. tostring(k) .. ": " .. tostring(v))
 			end
-			return "{\n" .. tostring(concat(t, ',\n')) .. "\n" .. tostring(ind(indent)) .. "}"
+			return "{\n" .. tostring(table.concat(t, ',\n')) .. "\n" .. tostring(ind(indent)) .. "}"
 		end
 	elseif 'nil' == typ then
 		return 'null'

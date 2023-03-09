@@ -28,10 +28,10 @@ return {
 		end)
 		return result
 	end,
-	decode = function(str: string): string
+	decode = function(str: string): string, string
 		str = str:gsub('=+$', '', 1)
 		if #str % 4 == 1 then
-			error 'invalid number of characters'
+			return nil, 'invalid number of characters'
 		end
 		local result = str:gsub('..?.?.?', function(chars: string): string
 			local b1, b2, b3, b4 = byte(chars, 1, 4)

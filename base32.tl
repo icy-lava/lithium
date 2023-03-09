@@ -40,11 +40,11 @@ return {
 		end)
 		return result
 	end,
-	decode = function(str: string): string
+	decode = function(str: string): string, string
 		str = str:gsub('=+$', '', 1):upper()
 		local strlen8 = #str % 8
 		if strlen8 == 6 or strlen8 == 3 or strlen8 == 1 then
-			error 'invalid number of characters'
+			return nil, 'invalid number of characters'
 		end
 		local result = str:gsub('..?.?.?.?.?.?.?', function(chars: string): string
 			local b1, b2, b3, b4, b5, b6, b7, b8 = byte(chars, 1, 8)

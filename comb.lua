@@ -23,6 +23,40 @@ function Parser:__call(state)
 	return self:run(state)
 end
 
+function Parser:parseData(data, source)
+	local state = {
+		source = source,
+		data = data,
+		index = 1,
+	}
+	
+	local newState, err = self(state)
+	if newState then
+		return newState
+	end
+	
+	local pointer = tostring(err.index)
+	if type(data) == 'string' then
+		local line, col = lstring.positionAt(data, err.index)
+		pointer = string.format('%d:%d', line, col)
+	end
+	if source then
+		source = source .. ':'
+	else
+		source = ''
+	end
+	
+	return nil, string.format('%s%s: %s', source, pointer, err.message)
+end
+
+function Parser:parseFile(path)
+	local data, err = common.readFile(path)
+	if not data then
+		return nil, err
+	end
+	return self:parseData(data, path)
+end
+
 function Parser:__add(other)
 	return comb.choice {self, other}
 end

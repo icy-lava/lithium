@@ -176,7 +176,7 @@ function json.encode(val, indent)
 			local t = {}
 			for i = 1, maxIndex do
 				local err
-				t[i], err = json.encode(val[i])
+				t[i], err = json.encode(val[i], indent)
 				if not (t[i]) then
 					return nil, err
 				end

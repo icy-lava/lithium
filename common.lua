@@ -259,16 +259,10 @@ function common.epprint(...)
 	common.fpprint(io.stderr, ...)
 end
 
-function common.readFile(path, bytes)
-	assert(path)
+local function readStream(stream, bytes)
 	if bytes == nil then bytes = -1 end
 	
-	local stream, err = io.open(path, 'rb')
-	if not stream then
-		return nil, err
-	end
-	
-	local result
+	local result, err
 	if bytes < 0 then
 		if bytes == -1 then
 			result, err = stream:read '*a'
@@ -283,7 +277,7 @@ function common.readFile(path, bytes)
 	
 	if not result then
 		stream:close()
-		return nil, err or 'could not read file'
+		return nil, err or 'could not read from stream'
 	end
 	
 	local status
@@ -295,17 +289,11 @@ function common.readFile(path, bytes)
 	return result
 end
 
-local function writeFile(path, str, mode)
-	local stream, err = io.open(path, mode)
-	if not stream then
-		return false, err
-	end
-	
-	local status
-	status, err = stream:write(str)
+local function writeStream(stream, data)
+	local status, err = stream:write(data)
 	if not status then
 		stream:close()
-		return false, err
+		return false, err or 'could not write to stream'
 	end
 	
 	status, err = stream:close()
@@ -316,24 +304,98 @@ local function writeFile(path, str, mode)
 	return true
 end
 
-function common.writeFile(path, str)
-	return writeFile(path, str, 'wb')
-end
-
-function common.appendFile(path, str)
-	return writeFile(path, str, 'ab')
-end
-
-local isWindows
-function common.isWindows()
-	if isWindows == nil then
-		if jit then
-			isWindows = jit.os == 'Windows'
-		else
-			isWindows = os.getenv('OS') == 'Windows_NT'
-		end
+function common.readFile(path, bytes)
+	local stream, err = io.open(path, 'rb')
+	if not stream then
+		return nil, err
 	end
-	return isWindows
+	return readStream(stream, bytes)
+end
+
+local function writeFile(path, data, mode)
+	local stream, err = io.open(path, mode)
+	if not stream then
+		return false, err
+	end
+	return writeStream(stream, data)
+end
+
+function common.writeFile(path, data)
+	return writeFile(path, data, 'wb')
+end
+
+function common.appendFile(path, data)
+	return writeFile(path, data, 'ab')
+end
+
+if jit then
+	common.isWindows = jit.os == 'Windows'
+else
+	common.isWindows = os.getenv('OS') == 'Windows_NT'
+end
+
+if common.isWindows then
+	local escapes = {
+		[ '\0'] = '\\0',
+		['\10'] = '\\n',
+		['\13'] = '\\r',
+	}
+	function common.commandLine(program, ...)
+		assert(program)
+		local args = common.pack(program:gsub('/', '\\'), ...)
+		for i = 1, args.n do
+			if not args[i]:match('^[%w_-/\\]+$') then
+				local val = args[i]:gsub('[%z\10\13]', function(char)
+					return escapes[char]
+				end)
+				args[i] = string.format('"%s"', val:gsub('(\\*)(")', function(bslash, dquote)
+					return bslash:rep(2) .. '\\' .. dquote
+				end))
+			end
+		end
+		return string.format('"%s"', table.concat(args, ' ', 1, args.n))
+	end
+else
+	local escapes = {
+		['\0'] = '\\0',
+	}
+	function common.commandLine(program, ...)
+		assert(program)
+		local args = common.pack(program, ...)
+		for i = 1, args.n do
+			if not args[i]:match('^[%w_-/]+$') then
+				local val = args[i]:gsub('[%z\10\13]', function(char)
+					return escapes[char]
+				end)
+				args[i] = string.format("'%s'", val:gsub("'", "'\\''"))
+			end
+		end
+		return table.concat(args, ' ', 1, args.n)
+	end
+end
+
+function common.execute(program, ...)
+	return os.execute(common.commandLine(program, ...))
+end
+
+function common.readProcess(program, ...)
+	local line = common.commandLine(program, ...)
+	local mode = common.isWindows and 'rb' or 'r'
+	local stream, err = io.popen(line, mode)
+	if not stream then
+		return nil, err
+	end
+	return readStream(stream)
+end
+
+function common.writeProcess(data, program, ...)
+	local line = common.commandLine(program, ...)
+	local mode = common.isWindows and 'wb' or 'w'
+	local stream, err = io.popen(line, mode)
+	if not stream then
+		return false, err
+	end
+	return writeStream(stream, data)
 end
 
 return common

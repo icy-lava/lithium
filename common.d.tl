@@ -56,7 +56,11 @@ local record common
 	writeFile: function(path: string, str: string): boolean, string
 	appendFile: function(path: string, str: string): boolean, string
 	
-	isWindows: function(): boolean
+	isWindows: boolean
+	commandLine: function(program: string, ...: string): string
+	execute: function(program: string, ...: string): integer
+	readProcess: function(program: string, ...: string): string, string
+	writeProcess: function(data: string, program: string, ...: string): boolean, string
 end
 
 return common

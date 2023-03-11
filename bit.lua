@@ -4,6 +4,7 @@ end
 
 local bit = {}
 
+local loadstring = loadstring or load
 local format = string.format
 local floor = math.floor
 local ceil = math.ceil
@@ -61,6 +62,92 @@ end
 
 function bit.bnot(x)
 	return uint2int(normalize(-round(x) - 1))
+end
+
+local logicTemplate = [[
+	return function(a, ...)
+		a = (a + 0.5) % 2 ^ 32
+		local result
+		for i = 1, select('#', ...) do
+			result = 0
+			local b = (select(i, ...) + 0.5) % 2 ^ 32
+			{body}
+			a = result
+		end
+		if result >= 2 ^ 31 then
+			result = result - 2 ^ 32
+		end
+		return result
+	end
+]]
+
+do
+	local cycle = [[
+		if a >= {c} then
+			if b >= {c} then
+				b = b - {c}
+			end
+			result = result + {c}
+			a = a - {c}
+		elseif b >= {c} then
+			result = result + {c}
+			b = b - {c}
+		end
+	]]
+	
+	local t = {}
+	for i = 31, 0, -1 do
+		table.insert(t, (cycle:gsub('{c}', 2 ^ i)))
+	end
+	
+	local src = logicTemplate:gsub('{body}', table.concat(t))
+	bit.bor = assert(loadstring(src))()
+end
+
+do
+	local cycle = [[
+		if a >= {c} then
+			if b >= {c} then
+				result = result + {c}
+				b = b - {c}
+			end
+			a = a - {c}
+		elseif b >= {c} then
+			b = b - {c}
+		end
+	]]
+	
+	local t = {}
+	for i = 31, 0, -1 do
+		table.insert(t, (cycle:gsub('{c}', 2 ^ i)))
+	end
+	
+	local src = logicTemplate:gsub('{body}', table.concat(t))
+	bit.band = assert(loadstring(src))()
+end
+
+do
+	local cycle = [[
+		if a >= {c} then
+			if b >= {c} then
+				b = b - {c}
+			else
+				result = result + {c}
+			end
+			a = a - {c}
+		elseif b >= {c} then
+			result = result + {c}
+			b = b - {c}
+		end
+	]]
+	
+	local t = {}
+	for i = 31, 0, -1 do
+		table.insert(t, (cycle:gsub('{c}', 2 ^ i)))
+	end
+	
+	local src = logicTemplate:gsub('{body}', table.concat(t))
+	bit.bxor = assert(loadstring(src))()
 end
 
 function bit.lshift(x, n)

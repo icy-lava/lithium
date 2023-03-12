@@ -2,7 +2,7 @@ local common = require 'lithium.common'
 
 return {
 	isWindows    = common.isWindows,
-	commandLine  = common.commandLine,
+	formCommand  = common.formCommand,
 	execute      = common.execute,
 	readProcess  = common.readProcess,
 	writeProcess = common.writeProcess,

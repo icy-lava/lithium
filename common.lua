@@ -340,11 +340,11 @@ if common.isWindows then
 		['\10'] = '\\n',
 		['\13'] = '\\r',
 	}
-	function common.commandLine(program, ...)
+	function common.formCommand(program, ...)
 		assert(program)
 		local args = common.pack(program:gsub('/', '\\'), ...)
 		for i = 1, args.n do
-			if not args[i]:match('^[%w_-/\\]+$') then
+			if not args[i]:match('^[%w_-/\\:%?]+$') then
 				local val = args[i]:gsub('[%z\10\13]', function(char)
 					return escapes[char]
 				end)
@@ -359,7 +359,7 @@ else
 	local escapes = {
 		['\0'] = '\\0',
 	}
-	function common.commandLine(program, ...)
+	function common.formCommand(program, ...)
 		assert(program)
 		local args = common.pack(program, ...)
 		for i = 1, args.n do
@@ -375,11 +375,11 @@ else
 end
 
 function common.execute(program, ...)
-	return os.execute(common.commandLine(program, ...))
+	return os.execute(common.formCommand(program, ...))
 end
 
 function common.readProcess(program, ...)
-	local line = common.commandLine(program, ...)
+	local line = common.formCommand(program, ...)
 	local mode = common.isWindows and 'rb' or 'r'
 	local stream, err = io.popen(line, mode)
 	if not stream then
@@ -389,13 +389,56 @@ function common.readProcess(program, ...)
 end
 
 function common.writeProcess(data, program, ...)
-	local line = common.commandLine(program, ...)
+	local line = common.formCommand(program, ...)
 	local mode = common.isWindows and 'wb' or 'w'
 	local stream, err = io.popen(line, mode)
 	if not stream then
 		return false, err
 	end
 	return writeStream(stream, data)
+end
+
+function common.processLines(program, ...)
+	local line = common.formCommand(program, ...)
+	local mode = common.isWindows and 'rb' or 'r'
+	local stream, err = io.popen(line, mode)
+	if not stream then
+		return nil, err
+	end
+	
+	-- FIXME: technically this does not explicitly close the stream. It still gets closed when garbage collected
+	-- If we provide our own iterator we can close it, though it still wouldn't be closed on loop break
+	return stream:lines()
+end
+
+function common.readCommand(command)
+	local mode = common.isWindows and 'rb' or 'r'
+	local stream, err = io.popen(command, mode)
+	if not stream then
+		return nil, err
+	end
+	return readStream(stream)
+end
+
+function common.writeCommand(data, command)
+	local mode = common.isWindows and 'wb' or 'w'
+	local stream, err = io.popen(command, mode)
+	if not stream then
+		return false, err
+	end
+	return writeStream(stream, data)
+end
+
+function common.commandLines(command)
+	local mode = common.isWindows and 'rb' or 'r'
+	local stream, err = io.popen(command, mode)
+	if not stream then
+		return nil, err
+	end
+	
+	-- FIXME: technically this does not explicitly close the stream. It still gets closed when garbage collected
+	-- If we provide our own iterator we can close it, though it still wouldn't be closed on loop break
+	return stream:lines()
 end
 
 return common

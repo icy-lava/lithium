@@ -1,8 +1,73 @@
 local common = require 'lithium.common'
 local fs = {}
 
+function fs.chdir()
+	return nil, 'changing current directory is not implemented'
+end
+
 if common.isWindows then
+	local function escapePath(path)
+		return (path:gsub('/', '\\'))
+	end
 	
+	function fs.dir(filepath)
+		if filepath == '' then
+			error('could not list files', 2)
+		end
+		local commandLine = common.formCommand('dir', '/b', escapePath(filepath) .. '\\'):sub(2, -2)
+		local nextLine = common.commandLines('"echo .& echo ..& ' .. commandLine .. ' 2>nul && echo //0|| echo //1"')
+		return function()
+			local line = nextLine()
+			if not line then
+				return nil
+			end
+			if line:match('^//%d+$') then
+				if line ~= '//0' then
+					error('could not list files', 2)
+				end
+				return nil
+			end
+			return line
+		end
+	end
+	
+	function fs.mkdir(dirname)
+		local commandLine = common.formCommand('mkdir', escapePath(dirname)):sub(2, -2)
+		local status = 1
+		for line in common.commandLines(commandLine .. ' 2>nul && echo 0') do
+			status = tonumber(line) or 1
+			break
+		end
+		if status ~= 0 then
+			return nil, 'could not create directory', status
+		end
+		return true
+	end
+	
+	function fs.rmdir(dirname)
+		local commandLine = common.formCommand('rd', escapePath(dirname)):sub(2, -2)
+		local status = 1
+		for line in common.commandLines(commandLine .. ' 2>nul && echo 0') do
+			status = tonumber(line) or 1
+			break
+		end
+		if status ~= 0 then
+			return nil, 'could not remove directory', status
+		end
+		return true
+	end
+	
+	function fs.currentdir()
+		local path = ''
+		for line in common.commandLines('echo(%CD%') do
+			path = line
+			break
+		end
+		if path == '' then
+			return nil, 'could not get current directory'
+		end
+		return path
+	end
 else
 	local function escapePath(path)
 		if path:match('^%-') then
@@ -78,10 +143,6 @@ else
 	
 	function fs.symlinkattributes(filepath, request)
 		return attributes(false, filepath, request)
-	end
-	
-	function fs.chdir()
-		return nil, 'changing current directory is not implemented'
 	end
 	
 	function fs.dir(filepath)

@@ -6,4 +6,8 @@ return {
 	execute      = common.execute,
 	readProcess  = common.readProcess,
 	writeProcess = common.writeProcess,
+	processLines = common.processLines,
+	readCommand  = common.readCommand,
+	writeCommand = common.writeCommand,
+	commandLines = common.commandLines,
 }

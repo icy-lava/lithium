@@ -328,6 +328,17 @@ function common.appendFile(path, data)
 	return writeFile(path, data, 'ab')
 end
 
+function common.fileLines(path)
+	local stream, err = io.open(path, 'r')
+	if not stream then
+		return nil, err
+	end
+	
+	-- FIXME: technically this does not explicitly close the stream. It still gets closed when garbage collected
+	-- If we provide our own iterator we can close it, though it still wouldn't be closed on loop break
+	return stream:lines()
+end
+
 if jit then
 	common.isWindows = jit.os == 'Windows'
 else

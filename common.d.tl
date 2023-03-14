@@ -55,12 +55,20 @@ local record common
 	readFile: function(path: string, bytes: integer): string, string
 	writeFile: function(path: string, str: string): boolean, string
 	appendFile: function(path: string, str: string): boolean, string
+	fileLines: function(path: string): function(): string
 	
 	isWindows: boolean
 	formCommand: function(program: string, ...: string): string
 	execute: function(program: string, ...: string): integer
+	
 	readProcess: function(program: string, ...: string): string, string
 	writeProcess: function(data: string, program: string, ...: string): boolean, string
+	processLines: function(command: string): function(): string
+	
+	readCommand: function(command: string): string, string
+	writeCommand: function(data:string, command: string): boolean, string
+	commandLines: function(command: string): function(): string
 end
-
+-- local file: FILE
+-- file:lines
 return common

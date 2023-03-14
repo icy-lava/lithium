@@ -4,6 +4,7 @@ local lio = setmetatable({
 	readFile   = common.readFile,
 	writeFile  = common.writeFile,
 	appendFile = common.appendFile,
+	fileLines  = common.fileLines,
 	fpprint    = common.fpprint,
 	pprint     = common.pprint,
 	epprint    = common.epprint,

@@ -42,7 +42,6 @@ return {
 					end
 					
 					if stop and stop >= i then
-						if captures.n == 0 then captures = nil end
 						token = {
 							type = tokenType,
 							start = start,

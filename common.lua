@@ -339,13 +339,14 @@ if common.isWindows then
 		[ '\0'] = '\\0',
 		['\10'] = '\\n',
 		['\13'] = '\\r',
+		[  '%'] = '"%"',
 	}
 	function common.formCommand(program, ...)
 		assert(program)
 		local args = common.pack(program:gsub('/', '\\'), ...)
 		for i = 1, args.n do
-			if not args[i]:match('^[%w_-/\\:%?]+$') then
-				local val = args[i]:gsub('[%z\10\13]', function(char)
+			if not args[i]:match('^[%w_%-/\\:%?]+$') then
+				local val = args[i]:gsub('[%z\10\13%%]', function(char)
 					return escapes[char]
 				end)
 				args[i] = string.format('"%s"', val:gsub('(\\*)(")', function(bslash, dquote)
@@ -400,8 +401,7 @@ end
 
 function common.processLines(program, ...)
 	local line = common.formCommand(program, ...)
-	local mode = common.isWindows and 'rb' or 'r'
-	local stream, err = io.popen(line, mode)
+	local stream, err = io.popen(line, 'r')
 	if not stream then
 		return nil, err
 	end
@@ -430,8 +430,7 @@ function common.writeCommand(data, command)
 end
 
 function common.commandLines(command)
-	local mode = common.isWindows and 'rb' or 'r'
-	local stream, err = io.popen(command, mode)
+	local stream, err = io.popen(command, 'r')
 	if not stream then
 		return nil, err
 	end

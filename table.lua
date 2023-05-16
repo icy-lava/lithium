@@ -12,6 +12,7 @@ local ltable = setmetatable({
 	clear   = common.clear,
 	ripairs = common.ripairs,
 	keys    = common.keys,
+	values  = common.values,
 	array   = common.array,
 	empty   = common.empty,
 }, {__index = table})

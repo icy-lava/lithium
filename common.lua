@@ -129,10 +129,22 @@ function common.ripairs(t)
 end
 
 function common.keys(t)
-	return common.array(pairs(t))
+	local keys = {}
+	for k in pairs(t) do
+		table.insert(keys, k)
+	end
+	return keys
 end
 
-local function singleToMulti(func)
+function common.values(t)
+	local values = {}
+	for _, v in pairs(t) do
+		table.insert(values, v)
+	end
+	return values
+end
+
+function common.singleToMulti(func)
 	return function(...)
 		local count = select('#', ...)
 		local values = {}
@@ -170,7 +182,7 @@ local function quote(value)
 	return str
 end
 
-common.quote = singleToMulti(quote)
+common.quote = common.singleToMulti(quote)
 
 local function indentation(indent)
 	return ('    '):rep(indent)
@@ -240,7 +252,7 @@ local function pretty(value, indent, refmap)
 	return format('<%s>', value)
 end
 
-common.pretty = singleToMulti(pretty)
+common.pretty = common.singleToMulti(pretty)
 
 function common.fpprint(file, ...)
 	local values = {}
@@ -248,7 +260,7 @@ function common.fpprint(file, ...)
 	for i = 1, vlen do
 		values[i] = pretty((select(i, ...)))
 	end
-	file:write(table.concat(values, ' ', 1, vlen), '\n')
+	file:write(table.concat(values, ', ', 1, vlen), '\n')
 end
 
 function common.pprint(...)

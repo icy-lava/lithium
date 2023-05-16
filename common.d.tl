@@ -36,8 +36,12 @@ local record common
 	unpack: function<T>({T}, integer, integer): T...
 	
 	ripairs: function<T>({T}): function(): (integer, T), {T}, integer
+	keys: function<K, V>({K:V}): {K}
 	keys: function<K>({K:any}): {K}
+	values: function<K, V>({K:V}): {V}
+	values: function<V>({any:V}): {V}
 	
+	singleToMulti: function<I, O>(function(value: I): O): function(...: I): O...
 	quote: function(a: any): string
 	quote: function(a: any, b: any): string, string
 	quote: function(a: any, b: any, c: any): string, string, string

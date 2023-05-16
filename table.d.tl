@@ -57,6 +57,7 @@ return {
 	unpack  = common.unpack,
 	ripairs = common.ripairs,
 	keys    = common.keys,
+	values  = common.values,
 	
 	-- lithium.table.*
 	copy    = ltable.copy,

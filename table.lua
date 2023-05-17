@@ -14,6 +14,7 @@ local ltable = setmetatable({
 	keys    = common.keys,
 	values  = common.values,
 	array   = common.array,
+	array2  = common.array2,
 	empty   = common.empty,
 }, {__index = table})
 
@@ -84,6 +85,18 @@ function ltable.imerge(...)
 	return result
 end
 
+function ltable.push(t, ...)
+	local len = #t
+	for i = 1, select('#', ...) do
+		local value = select(i, ...)
+		if value ~= nil then
+			len = len + 1
+			t[len] = value
+		end
+	end
+	return len
+end
+
 function ltable.map(t, func, ...)
 	local newT = {}
 	for key, value in pairs(t) do
@@ -151,6 +164,22 @@ function ltable.ireject(t, func, ...)
 	return newT
 end
 
+function ltable.each(t, func)
+	for k, v in pairs(t) do
+		if func(k, v) == false then
+			return
+		end
+	end
+end
+
+function ltable.ieach(t, func)
+	for i, v in ipairs(t) do
+		if func(i, v) == false then
+			return
+		end
+	end
+end
+
 function ltable.sort(t, comp)
 	if comp == nil or 'function' == type(comp) then
 		sort(t, comp)
@@ -159,6 +188,24 @@ function ltable.sort(t, comp)
 			return a[comp] < b[comp]
 		end)
 	end
+end
+
+-- Sort by key by default
+local function spairsDefaultComparator(a, b)
+	return a[1] < b[1]
+end
+
+function ltable.spairs(t, comp)
+	local set = ltable.array2(pairs(t))
+	sort(set, comp or spairsDefaultComparator)
+	
+	local cor = coroutine.wrap(function()
+		for _, kv in ipairs(set) do
+			coroutine.yield(kv[1], kv[2])
+		end
+	end)
+	
+	return cor
 end
 
 function ltable.reverse(t)

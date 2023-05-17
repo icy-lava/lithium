@@ -15,6 +15,7 @@ local record ltable
 	imerge: function<A, B>(t1: {A}, t2: {B}): {A | B}
 	imerge: function<A, B, C>(t1: {A}, t2: {B}, t3: {C}): {A | B | C}
 	imerge: function(...: {any}): {any}
+	push: function<T>(t: {T}, ...: T): integer
 	
 	map: function<A, K, V, M>(t: {K:V}, function(value: V, ...: A): (M), ...: A): {K:M}
 	imap: function<A, V, M>(t: {V}, function(value: V, ...: A): (M), ...: A): {M}
@@ -22,8 +23,11 @@ local record ltable
 	ifilter: function<A, V>(t: {V}, function(value: V, ...: A): (boolean), ...: A): {V}
 	reject: function<A, K, V>(t: {K:V}, function(value: V, ...: A): (boolean), ...: A): {K:V}
 	ireject: function<A, V>(t: {V}, function(value: V, ...: A): (boolean), ...: A): {V}
+	each: function<K, V>(t: {K:V}, function(key: K, value: V): boolean)
+	ieach: function<V>(t: {V}, function(i: integer, value: V): boolean)
 	sort: function<T>(t: {T}, comp: function(a: T, b: T): (boolean))
 	sort: function<K, V>(t: {{K:V}}, comp: K)
+	spairs: function<K, V>(t: {K:V}, comp: function(a: {K, V}, b: {K, V}): boolean): function(): K, V
 	reverse: function<T>(t: {T}): {T}
 	
 	reduce: function(t: {integer}, reducer: function(a: integer, b: integer): (integer)): integer
@@ -67,13 +71,17 @@ return {
 
 	merge   = ltable.merge,
 	imerge  = ltable.imerge,
+	push    = ltable.push,
 	map     = ltable.map,
 	imap    = ltable.imap,
 	filter  = ltable.filter,
 	ifilter = ltable.ifilter,
 	reject  = ltable.reject,
 	ireject = ltable.ireject,
+	each    = ltable.each,
+	ieach   = ltable.ieach,
 	sort    = ltable.sort,
+	spairs  = ltable.spairs,
 	reverse = ltable.reverse,
 
 	reduce  = ltable.reduce,

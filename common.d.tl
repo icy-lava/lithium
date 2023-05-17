@@ -33,7 +33,18 @@ local record common
 	packCaptures: function(start: integer, stop: integer, ...: integer): integer, integer, Packed<integer>
 	packCaptures: function(start: integer, stop: integer, ...: number): integer, integer, Packed<number>
 	packCaptures: function<T>(start: integer, stop: integer, ...: T): integer, integer, Packed<T>
+	unpack: function({integer}, integer, integer): integer...
+	unpack: function({number}, integer, integer): number...
 	unpack: function<T>({T}, integer, integer): T...
+	toPacked: function(t: {integer}, len: integer): Packed<integer>
+	toPacked: function(t: {number}, len: integer): Packed<number>
+	toPacked: function<T>(t: {T}, len: integer): Packed<T>
+	toUnpacked: function(t: Packed<integer>): {integer}
+	toUnpacked: function(t: Packed<number>): {number}
+	toUnpacked: function<T>(t: Packed<T>): {T}
+	sub: function(t: {integer}, i: integer, j: integer): {integer}
+	sub: function(t: {number}, i: integer, j: integer): {number}
+	sub: function<T>(t: {T}, i: integer, j: integer): {T}
 	
 	ripairs: function<T>({T}): function(): (integer, T), {T}, integer
 	keys: function<K, V>({K:V}): {K}

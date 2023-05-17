@@ -3,19 +3,22 @@ local common = require('lithium.common')
 local sort = table.sort
 
 local ltable = setmetatable({
-	pack    = common.pack,
-	unpack  = common.unpack,
-	isEmpty = common.isEmpty,
-	get     = common.get,
-	set     = common.set,
-	delete  = common.delete,
-	clear   = common.clear,
-	ripairs = common.ripairs,
-	keys    = common.keys,
-	values  = common.values,
-	array   = common.array,
-	array2  = common.array2,
-	empty   = common.empty,
+	pack       = common.pack,
+	unpack     = common.unpack,
+	toPacked   = common.toPacked,
+	toUnpacked = common.toUnpacked,
+	sub        = common.sub,
+	isEmpty    = common.isEmpty,
+	get        = common.get,
+	set        = common.set,
+	delete     = common.delete,
+	clear      = common.clear,
+	ripairs    = common.ripairs,
+	keys       = common.keys,
+	values     = common.values,
+	array      = common.array,
+	array2     = common.array2,
+	empty      = common.empty,
 }, {__index = table})
 
 function ltable.copy(t)

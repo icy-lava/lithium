@@ -124,6 +124,25 @@ end
 
 common.unpack = table.unpack or unpack
 
+function common.toPacked(t, len)
+	t.n = len or #t
+	return t
+end
+
+function common.toUnpacked(t)
+	t.n = nil
+	return t
+end
+
+-- TODO: i and j should follow string.sub rules
+function common.sub(t, i, j)
+	local newT = {}
+	for k = i, j do
+		newT[k - i + 1] = t[k]
+	end
+	return newT
+end
+
 function common.ripairs(t)
 	return ripairsIterator, t, #t + 1
 end

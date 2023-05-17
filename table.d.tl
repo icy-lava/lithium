@@ -23,6 +23,10 @@ local record ltable
 	ifilter: function<A, V>(t: {V}, function(value: V, ...: A): (boolean), ...: A): {V}
 	reject: function<A, K, V>(t: {K:V}, function(value: V, ...: A): (boolean), ...: A): {K:V}
 	ireject: function<A, V>(t: {V}, function(value: V, ...: A): (boolean), ...: A): {V}
+	sub: function(t: {integer}, i: integer, j: integer): {integer}
+	sub: function(t: {number}, i: integer, j: integer): {number}
+	sub: function<V>(t: {V}, i: integer, j: integer): {V}
+	
 	each: function<K, V>(t: {K:V}, function(key: K, value: V): boolean)
 	ieach: function<V>(t: {V}, function(i: integer, value: V): boolean)
 	sort: function<T>(t: {T}, comp: function(a: T, b: T): (boolean))
@@ -49,19 +53,22 @@ return {
 	-- unpack  = table.unpack,
 	
 	-- lithium.common
-	empty   = common.empty,
-	isEmpty = common.isEmpty,
-	array   = common.array,
-	array2  = common.array2,
-	get     = common.get,
-	set     = common.set,
-	delete  = common.delete,
-	clear   = common.clear,
-	pack    = common.pack,
-	unpack  = common.unpack,
-	ripairs = common.ripairs,
-	keys    = common.keys,
-	values  = common.values,
+	empty      = common.empty,
+	isEmpty    = common.isEmpty,
+	array      = common.array,
+	array2     = common.array2,
+	get        = common.get,
+	set        = common.set,
+	delete     = common.delete,
+	clear      = common.clear,
+	pack       = common.pack,
+	unpack     = common.unpack,
+	ripairs    = common.ripairs,
+	keys       = common.keys,
+	values     = common.values,
+	toPacked   = common.toPacked,
+	toUnpacked = common.toUnpacked,
+	sub        = common.sub,
 	
 	-- lithium.table.*
 	copy    = ltable.copy,
@@ -78,6 +85,7 @@ return {
 	ifilter = ltable.ifilter,
 	reject  = ltable.reject,
 	ireject = ltable.ireject,
+	
 	each    = ltable.each,
 	ieach   = ltable.ieach,
 	sort    = ltable.sort,

@@ -6,16 +6,16 @@ local record color
 	splitOklab: function(self: color): number, number, number, number
 	splitRGB: function(self: color): number, number, number, number
 	array: function(self: color): {number, number, number, number}
-	withAlpha: function(alpha: number): color
-	addedAlpha: function(alpha: number): color
-	withLightness: function(lightness: number): color
-	addedLightness: function(lightness: number): color
-	withChroma: function(chroma: number): color
-	addedChroma: function(chroma: number): color
-	withHue: function(hue: number): color
-	addedHue: function(hue: number): color
-	withHueDegrees: function(hue: number): color
-	addedHueDegrees: function(hue: number): color
+	withAlpha: function(self: color, alpha: number): color
+	addedAlpha: function(self: color, alpha: number): color
+	withLightness: function(self: color, lightness: number): color
+	addedLightness: function(self: color, lightness: number): color
+	withChroma: function(self: color, chroma: number): color
+	addedChroma: function(self: color, chroma: number): color
+	withHue: function(self: color, hue: number): color
+	addedHue: function(self: color, hue: number): color
+	withHueDegrees: function(self: color, hue: number): color
+	addedHueDegrees: function(self: color, hue: number): color
 end
 
 return color

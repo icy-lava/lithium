@@ -4,7 +4,11 @@ local record ltable
 	copy: function<K, V>(t: {K:V}): {K:V}
 	icopy: function<T>(t: {T}): {T}
 	clone: function<K, V>(t: {K:V}): {K:V}
+	invert: function<V>(t: {V}): {V:integer}
 	invert: function<K, V>(t: {K:V}): {V:K}
+	
+	find: function<K, V>(t: {K:V}, value: V): K
+	ifind: function<V>(t: {V}, value: V): integer
 	
 	merge: function<K, V>(...: {K:V}): {K:V}
 	merge: function<K1, K2, V1, V2>(t1: {K1:V1}, t2: {K2:V2}): {K1 | K2:V1 | V2}
@@ -75,6 +79,9 @@ return {
 	icopy   = ltable.icopy,
 	clone   = ltable.clone,
 	invert  = ltable.invert,
+	
+	find    = ltable.find,
+	ifind   = ltable.ifind,
 
 	merge   = ltable.merge,
 	imerge  = ltable.imerge,

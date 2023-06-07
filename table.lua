@@ -65,6 +65,24 @@ function ltable.invert(t)
 	return newT
 end
 
+function ltable.find(t, value)
+	for k, other in pairs(t) do
+		if value == other then
+			return k
+		end
+	end
+	return nil
+end
+
+function ltable.ifind(t, value)
+	for i, other in ipairs(t) do
+		if value == other then
+			return i
+		end
+	end
+	return nil
+end
+
 function ltable.merge(...)
 	local result = ltable.copy((...))
 	for i = 2, select('#', ...) do

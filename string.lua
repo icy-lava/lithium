@@ -114,4 +114,18 @@ function lstring.trimNonEmpty(str)
 	return str
 end
 
+local string_format = string.format
+local function lstring_format(format, t)
+	return (format:gsub('%b{}', function(key)
+		key = key:sub(2, -2)
+		local value = t[tonumber(key) or key]
+		if value ~= nil then
+			return tostring(value)
+		end
+		return string_format('{%s}', lstring_format(key, t))
+	end))
+end
+
+lstring.format = lstring_format
+
 return lstring

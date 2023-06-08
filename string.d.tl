@@ -15,12 +15,14 @@ local record lstring
 	trimRight: function(str: string): string
 	trim: function(str: string): string
 	trimNonEmpty: function(str: string): string
+	
+	format: function(format: string, t: {string | integer:any}): string
 end
 
 return {
 	-- string.*
 	find    = string.find,
-	format  = string.format,
+	-- format  = string.format,
 	rep     = string.rep,
 	gsub    = string.gsub,
 	len     = string.len,
@@ -53,4 +55,6 @@ return {
 	trimRight    = lstring.trimRight,
 	trim         = lstring.trim,
 	trimNonEmpty = lstring.trimNonEmpty,
+	
+	format       = lstring.format,
 }

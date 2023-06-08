@@ -5,8 +5,8 @@ local record lmath
 	lerp: function<T>(t: number, a: T, b: T): T
 	damp: function<T>(smoothing: number, dt: number, a: number, b: number): number
 	damp: function<T>(smoothing: number, dt: number, a: T, b: T): T
-	root: function(x: number): number
-	cbrt: function(): number
+	root: function(x: number, rpow: number): number
+	cbrt: function(x: number): number
 	ternary: function(condition: boolean, ifTrue: integer, ifFalse: integer): integer
 	ternary: function(condition: boolean, ifTrue: number, ifFalse: number): number
 	ternary: function<A>(condition: boolean, ifTrue: A, ifFalse: A): A

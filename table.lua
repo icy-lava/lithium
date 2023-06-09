@@ -38,7 +38,7 @@ function ltable.icopy(t)
 end
 
 local function clone(t, refmap)
-	if refmap[t] then
+	if refmap[t] ~= nil then
 		return refmap[t]
 	end
 	local newT = {}
@@ -75,35 +75,103 @@ function ltable.find(t, value)
 end
 
 function ltable.ifind(t, value)
-	for i, other in ipairs(t) do
-		if value == other then
+	for i = 1, #t do
+		if value == t[i] then
 			return i
 		end
 	end
 	return nil
 end
 
-function ltable.merge(...)
-	local result = ltable.copy((...))
-	for i = 2, select('#', ...) do
+function ltable.count(t, value)
+	local count = 0
+	for _, other in pairs(t) do
+		if value == other then
+			count = count + 1
+		end
+	end
+	return count
+end
+
+function ltable.countKeys(t, key)
+	local count = 0
+	for otherKey in pairs(t) do
+		if key == otherKey then
+			count = count + 1
+		end
+	end
+	return count
+end
+
+function ltable.icount(t, value)
+	local count = 0
+	for i = 1, #t do
+		if value == t[i] then
+			count = count + 1
+		end
+	end
+	return count
+end
+
+function ltable.mergeInto(dest, ...)
+	for i = 1, select('#', ...) do
 		for k, v in pairs((select(i, ...))) do
+			dest[k] = v
+		end
+	end
+	return dest
+end
+
+function ltable.imergeInto(dest, ...)
+	local count = #dest
+	for i = 1, select('#', ...) do
+		local subT = select(i, ...)
+		for j = 1, #subT do
+			count = count + 1
+			dest[count] = subT[j]
+		end
+	end
+	return dest
+end
+
+function ltable.merge(...)
+	return ltable.mergeInto({}, ...)
+end
+
+function ltable.imerge(...)
+	return ltable.imergeInto({}, ...)
+end
+
+function ltable.flatten(t)
+	local result = {}
+	for i = 1, #t do
+		for k, v in pairs(t[i]) do
 			result[k] = v
 		end
 	end
 	return result
 end
 
-function ltable.imerge(...)
-	local result = ltable.icopy((...))
-	local count = #result
-	for i = 2, select('#', ...) do
-		local subT = select(i, ...)
+function ltable.iflatten(t)
+	local result = {}
+	local count = 0
+	for i = 1, #t do
+		local subT = t[i]
 		for j = 1, #subT do
 			count = count + 1
 			result[count] = subT[j]
 		end
 	end
 	return result
+end
+
+function ltable.reverse(t, count)
+	count = count or #t
+	for i = 1, count / 2 do
+		local j = count - i + 1
+		t[i], t[j] = t[j], t[i]
+	end
+	return t
 end
 
 function ltable.push(t, ...)
@@ -115,7 +183,7 @@ function ltable.push(t, ...)
 			t[len] = value
 		end
 	end
-	return len
+	return t
 end
 
 function ltable.map(t, func, ...)
@@ -211,39 +279,24 @@ function ltable.sort(t, comp)
 	end
 end
 
--- Sort by key by default
-local function spairsDefaultComparator(a, b)
-	return a[1] < b[1]
-end
-
 function ltable.spairs(t, comp)
-	local set = ltable.array2(pairs(t))
-	sort(set, comp or spairsDefaultComparator)
+	local keys = ltable.keys(t)
+	sort(keys, comp)
 	
-	local cor = coroutine.wrap(function()
-		for _, kv in ipairs(set) do
-			coroutine.yield(kv[1], kv[2])
+	local i = 0
+	return function()
+		i = i + 1
+		local key = keys[i]
+		if key ~= nil then
+			return key, t[key]
 		end
-	end)
-	
-	return cor
-end
-
-function ltable.reverse(t)
-	local newT = {}
-	local len = 0
-	for i = #t, 1, -1 do
-		len = len + 1
-		newT[len] = t[i]
+		return nil
 	end
-	return newT
 end
 
 local defaultReducer = function(a, b) return a + b end
 function ltable.reduce(t, reducer)
-	if reducer == nil then
-		reducer = defaultReducer
-	end
+	reducer = reducer or defaultReducer
 	local value = t[1]
 	for i = 2, t.n or #t do
 		value = reducer(value, t[i])

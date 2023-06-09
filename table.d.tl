@@ -9,17 +9,38 @@ local record ltable
 	
 	find: function<K, V>(t: {K:V}, value: V): K
 	ifind: function<V>(t: {V}, value: V): integer
+	count: function<K, V>(t: {K:V}, value: V): integer
+	countKeys: function<K, V>(t: {K:V}, key: K): integer
+	icount: function<V>(t: {V}, value: V): integer
+	
+	mergeInto: function<K, V>(dest: {K:V}, ...: {K:V}): {K:V}
+	mergeInto: function(dest: table, ...: table): table
+	
+	imergeInto: function<A>(dest: {A}, ...: {A}): {A}
+	imergeInto: function(dest: {any}, ...: {any}): {any}
 	
 	merge: function<K, V>(...: {K:V}): {K:V}
-	merge: function<K1, K2, V1, V2>(t1: {K1:V1}, t2: {K2:V2}): {K1 | K2:V1 | V2}
-	merge: function<K1, K2, K3, V1, V2, V3>(t1: {K1:V1}, t2: {K2:V2}, t3: {K3:V3}): {K1 | K2 | V3:V1 | V2 | V3}
+	merge: function<K>(...: {K:string}): {K:string}
+	merge: function<V>(...: {string:V}): {string:V}
+	merge: function(...: {string:string}): {string:string}
 	merge: function(...: table): table
 	
 	imerge: function<A>(...: {A}): {A}
-	imerge: function<A, B>(t1: {A}, t2: {B}): {A | B}
-	imerge: function<A, B, C>(t1: {A}, t2: {B}, t3: {C}): {A | B | C}
+	imerge: function(...: {string}): {string}
 	imerge: function(...: {any}): {any}
-	push: function<T>(t: {T}, ...: T): integer
+	
+	flatten: function<K, V>(t: {{K:V}}): {K:V}
+	flatten: function<K>(t: {{K:string}}): {K:string}
+	flatten: function<V>(t: {{string:V}}): {string:V}
+	flatten: function(t: {{string:string}}): {string:string}
+	flatten: function(t: {table}): table
+	
+	iflatten: function<A>(t: {{A}}): {A}
+	iflatten: function<A>(t: {{string}}): {string}
+	iflatten: function<A>(t: {{any}}): {any}
+	
+	reverse: function<T>(t: {T}, count: integer): {T}
+	push: function<T>(t: {T}, ...: T): {T}
 	
 	map: function<A, K, V, M>(t: {K:V}, function(value: V, ...: A): (M), ...: A): {K:M}
 	imap: function<A, V, M>(t: {V}, function(value: V, ...: A): (M), ...: A): {M}
@@ -36,7 +57,6 @@ local record ltable
 	sort: function<T>(t: {T}, comp: function(a: T, b: T): (boolean))
 	sort: function<K, V>(t: {{K:V}}, comp: K)
 	spairs: function<K, V>(t: {K:V}, comp: function(a: {K, V}, b: {K, V}): boolean): function(): K, V
-	reverse: function<T>(t: {T}): {T}
 	
 	reduce: function(t: {integer}, reducer: function(a: integer, b: integer): (integer)): integer
 	reduce: function(t: {number}, reducer: function(a: number, b: number): (number)): number
@@ -49,8 +69,8 @@ return {
 	-- table.*
 	concat  = table.concat,
 	insert  = table.insert,
-	move    = table.move,
 	remove  = table.remove,
+	-- move    = table.move,
 	-- maxn    = table.maxn,
 	-- sort    = table.sort,
 	-- pack    = table.pack,
@@ -82,9 +102,21 @@ return {
 	
 	find    = ltable.find,
 	ifind   = ltable.ifind,
+	
+	count     = ltable.count,
+	countKeys = ltable.countKeys,
+	icount    = ltable.icount,
 
+	mergeInto  = ltable.mergeInto,
+	imergeInto = ltable.imergeInto,
+	
 	merge   = ltable.merge,
 	imerge  = ltable.imerge,
+	
+	flatten  = ltable.flatten,
+	iflatten = ltable.iflatten,
+	
+	reverse = ltable.reverse,
 	push    = ltable.push,
 	map     = ltable.map,
 	imap    = ltable.imap,
@@ -97,7 +129,6 @@ return {
 	ieach   = ltable.ieach,
 	sort    = ltable.sort,
 	spairs  = ltable.spairs,
-	reverse = ltable.reverse,
 
 	reduce  = ltable.reduce,
 	new     = ltable.new,

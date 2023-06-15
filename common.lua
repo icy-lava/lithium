@@ -134,8 +134,14 @@ function common.toUnpacked(t)
 	return t
 end
 
--- TODO: i and j should follow string.sub rules
 function common.sub(t, i, j)
+	local tlen = #t
+	j = j or -1
+	if j < 0 then j = j + tlen + 1 end
+	if i < 0 then i = i + tlen + 1 end
+	if i < 1 then i = 1 end
+	if j > tlen then j = tlen end
+	
 	local newT = {}
 	for k = i, j do
 		newT[k - i + 1] = t[k]

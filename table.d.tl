@@ -1,6 +1,9 @@
 local common = require 'lithium.common'
 
 local record ltable
+	equal: function(a: any, b: any): boolean
+	iequal: function(a: {any}, b: {any}): boolean
+	
 	copy: function<K, V>(t: {K:V}): {K:V}
 	icopy: function<T>(t: {T}): {T}
 	clone: function<K, V>(t: {K:V}): {K:V}
@@ -95,6 +98,9 @@ return {
 	sub        = common.sub,
 	
 	-- lithium.table.*
+	equal   = ltable.equal,
+	iequal  = ltable.iequal,
+	
 	copy    = ltable.copy,
 	icopy   = ltable.icopy,
 	clone   = ltable.clone,

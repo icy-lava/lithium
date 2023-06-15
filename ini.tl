@@ -10,18 +10,26 @@ local ltable = require 'lithium.table'
 local lexer = require 'lithium.lexer'
 local common = require 'lithium.common'
 
-local types = {
-	{'blank', '[^%S\r\n]*\r?\n'},
-	{'whitespace', '[^%S\r\n]+'},
+local enum TokenType
+	'blank'
+	'whitespace'
+	'section'
+	'comment'
+	'assign'
+end
+
+local types: {lexer.StringPattern<TokenType>} = {
+	{type = 'blank', '[^%S\r\n]*\r?\n'},
+	{type = 'whitespace', '[^%S\r\n]+'},
 	
 	-- NOTE: a section doesn't actually end at a newline, this means '[config] x = y' is valid.
-	{'section', '%[([^%]\r\n#;]*)%][^%S\r\n]*\r?\n?'},
+	{type = 'section', '%[([^%]\r\n#;]*)%][^%S\r\n]*\r?\n?'},
 	
-	{'comment', '[#;]([^\r\n]*)\r?\n'},
-	{'assign', '([^%[=\r\n#;]+)=([^#;\r\n]*)\r?\n?'},
+	{type = 'comment', '[#;]([^\r\n]*)\r?\n'},
+	{type = 'assign', '([^%[=\r\n#;]+)=([^#;\r\n]*)\r?\n?'},
 }
 
-local type ININamespace = {string:string | ININamespace}
+local type Namespace = {string:string | Namespace}
 
 local function parseKey(key: string): {string}, string
 	local keys : {string} = {}
@@ -35,7 +43,7 @@ local function parseKey(key: string): {string}, string
 	return keys
 end
 
-local function parseString(str: string): ININamespace, string, integer
+local function parseString(str: string): Namespace, string, integer
 	str = str .. '\n'
 	local tokens, _, pos = lexer.lexString(str, types)
 	
@@ -45,7 +53,7 @@ local function parseString(str: string): ININamespace, string, integer
 	end
 	
 	local currentSection = {'global'}
-	local data : ININamespace = {}
+	local data : Namespace = {}
 	for i = 1, #tokens do
 		local token = tokens[i]
 		if token.type == 'section' then
@@ -73,9 +81,10 @@ local function parseString(str: string): ININamespace, string, integer
 end
 
 return {
-	ININamespace = ININamespace,
+	Namespace = Namespace,
+	TokenType = TokenType,
 	parseString = parseString,
-	parseFile = function(filename: string): ININamespace, string, integer
+	parseFile = function(filename: string): Namespace, string, integer
 		local data, err = common.readFile(filename)
 		if not data then
 			return nil, err

@@ -110,7 +110,7 @@ return {
 						start, stop, captures = packCaptures(str:find(pat:gsub('^%^?', '^'), i))
 					else
 						start, stop, captures = packCaptures(pat(str, i))
-						assert(start <= stop)
+						assert(not start or start <= stop)
 					end
 					
 					if stop and stop >= i then

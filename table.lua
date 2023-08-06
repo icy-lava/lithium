@@ -21,6 +21,39 @@ local ltable = setmetatable({
 	empty      = common.empty,
 }, {__index = table})
 
+local function equal(a, b)
+	if type(a) == 'table' and type(b) == 'table' then
+		for k, av in pairs(a) do
+			if not equal(av, b[k]) then
+				return false
+			end
+		end
+		for k, bv in pairs(b) do
+			if not equal(a[k], bv) then
+				return false
+			end
+		end
+		return true
+	end
+	return a == b
+end
+ltable.equal = equal
+
+local function iequal(a, b)
+	if type(a) == 'table' and type(b) == 'table' then
+		local alen = #a
+		if alen ~= #b then return false end
+		for i = 1, alen do
+			if not equal(a[i], b[i]) then
+				return false
+			end
+		end
+		return true
+	end
+	return a == b
+end
+ltable.iequal = iequal
+
 function ltable.copy(t)
 	local newT = {}
 	for k, v in pairs(t) do

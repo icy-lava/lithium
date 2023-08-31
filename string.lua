@@ -1,4 +1,5 @@
 local wrap, yield = coroutine.wrap, coroutine.yield
+local format = string.format
 local common = require 'lithium.common'
 
 local lstring = setmetatable({
@@ -115,8 +116,8 @@ function lstring.trimNonEmpty(str)
 end
 
 local string_format = string.format
-local function lstring_format(format, t)
-	return (format:gsub('%b{}', function(key)
+local function lstring_format(format_, t)
+	return (format_:gsub('%b{}', function(key)
 		key = key:sub(2, -2)
 		local value = t[tonumber(key) or key]
 		if value ~= nil then
@@ -127,5 +128,36 @@ local function lstring_format(format, t)
 end
 
 lstring.format = lstring_format
+
+local function sepList(sep, lastSep, ...)
+	assert(sep ~= nil)
+	lastSep = lastSep or sep
+	local count = select('#', ...)
+	assert(count > 0)
+	if count == 1 then
+		return (...)
+	end
+	local list = {...}
+	local last = table.remove(list)
+	return format('%s%s%s', table.concat(list, sep), lastSep, last)
+end
+
+lstring.sepList = sepList
+
+function lstring.orList(...)
+	return sepList(', ', ' or ', ...)
+end
+
+function lstring.norList(...)
+	return sepList(', ', ' nor ', ...)
+end
+
+function lstring.andList(...)
+	return sepList(', ', ' and ', ...)
+end
+
+function lstring.commaList(lastSep, ...)
+	return sepList(', ', lastSep, ...)
+end
 
 return lstring

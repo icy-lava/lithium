@@ -488,4 +488,35 @@ function common.commandLines(command)
 	return stream:lines()
 end
 
+function common.equalAny(value, ...)
+	local count = select('#', ...)
+	if count == 0 then return true end
+	for i = 1, count do
+		if value == select(i, ...) then
+			return true
+		end
+	end
+	return false
+end
+
+function common.equalOne(value, ...)
+	local count = select('#', ...)
+	for i = 1, count do
+		if value == select(i, ...) then
+			return true
+		end
+	end
+	return false
+end
+
+function common.equalAll(value, ...)
+	local count = select('#', ...)
+	for i = 1, count do
+		if value ~= select(i, ...) then
+			return false
+		end
+	end
+	return true
+end
+
 return common

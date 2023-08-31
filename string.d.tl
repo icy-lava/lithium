@@ -17,6 +17,12 @@ local record lstring
 	trimNonEmpty: function(str: string): string
 	
 	format: function(format: string, t: {string | integer:any}): string
+	
+	sepList: function(sep: string, lastSep: string, ...: string | number): string
+	orList: function(...: string | number): string
+	norList: function(...: string | number): string
+	andList: function(...: string | number): string
+	commaList: function(lastSep: string, ...: string | number): string
 end
 
 return {
@@ -57,4 +63,10 @@ return {
 	trimNonEmpty = lstring.trimNonEmpty,
 	
 	format       = lstring.format,
+	
+	sepList      = lstring.sepList,
+	orList       = lstring.orList,
+	norList      = lstring.norList,
+	andList      = lstring.andList,
+	commaList    = lstring.commaList,
 }

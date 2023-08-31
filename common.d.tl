@@ -83,7 +83,10 @@ local record common
 	readCommand: function(command: string): string, string
 	writeCommand: function(data:string, command: string): boolean, string
 	commandLines: function(command: string): function(): string
+	
+	equalAny: function<T>(value: T, ...: T): boolean
+	equalOne: function<T>(value: T, ...: T): boolean
+	equalAll: function<T>(value: T, ...: T): boolean
 end
--- local file: FILE
--- file:lines
+
 return common

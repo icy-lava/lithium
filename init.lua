@@ -1,12 +1,3 @@
-local thisModuleName = ...
-
--- Ensure submodules can just require 'lithium'
-if thisModuleName ~= 'lithium' then
-	package.preload.lithium = function()
-		return require(thisModuleName)
-	end
-end
-
 return setmetatable({}, {
 	__index = function(t, modname)
 		local status, result = pcall(require, "lithium." .. modname)

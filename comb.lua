@@ -162,7 +162,8 @@ function Parser:atLeast(num)
 		end
 		
 		if count < num then
-			return nil, lstring.format('expected at least %d matches, got %d; %s', num, count, err)
+			local message = string.format('expected at least %d matches, got %d; %s', num, count, err)
+			return nil, comb.error(state, message)
 		end
 		
 		state.result = results
@@ -192,7 +193,7 @@ function Parser:opposite(message)
 	return Parser.new(function(state)
 		local newState, _ = self(state)
 		if newState then
-			return nil, message or 'unexpected parser match'
+			return nil, comb.error(state, message or 'unexpected parser match')
 		end
 		return state
 	end)
@@ -345,7 +346,7 @@ end
 
 function Parser:gsub(pattern, repl, n)
 	return self:map(function(result)
-		return result:gsub(pattern, repl, n)
+		return (result:gsub(pattern, repl, n))
 	end)
 end
 
@@ -587,7 +588,7 @@ comb.eof = Parser.new(function(state)
 	if state.index > #state.data then
 		return state
 	end
-	return nil, 'did not match EOF'
+	return nil, comb.error(state, 'did not match EOF')
 end)
 
 comb.endline = comb.newline + comb.eof

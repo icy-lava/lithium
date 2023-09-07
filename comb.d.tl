@@ -16,6 +16,12 @@ local record comb
 		value: R
 	end
 	
+	record TagWithIndex<T, R>
+		tag: T
+		index: integer
+		value: R
+	end
+	
 	record Match
 		match: string
 		captures: {string}
@@ -40,12 +46,14 @@ local record comb
 		chain: function<D, F, T, NT>(self: Parser<D, F, T>, resultToParser: function(result: T): Parser<D, T, NT>): Parser<D, F, NT>, Error
 		
 		noConsume: function<D, F, T>(self: Parser<D, F, T>): Parser<D, F, F>
+		peek: function<D, F, T>(self: Parser<D, F, T>): Parser<D, F, T>
 		atLeast: function<D, F, T>(self: Parser<D, F, T>, count: integer): Parser<D, F, {T}>
 		atMost: function<D, F, T>(self: Parser<D, F, T>, count: integer): Parser<D, F, {T}>
 		
 		opposite: function<D, F, T>(self: Parser<D, F, T>, message: string): Parser<D, F, F>
 		
 		tag: function<D, F, T, TT>(self: Parser<D, F, T>, name: TT): Parser<D, F, Tag<TT, T>>
+		tagWithIndex: function<D, F, T, TT>(self: Parser<D, F, T>, name: TT): Parser<D, F, TagWithIndex<TT, T>>
 		
 		delimited: function<D, F, T>(self: Parser<D, F | T, T>, delimiter: Parser<D, any, any>): Parser<D, F, {T}>
 		delimited: function<D, R>(self: Parser<D, R, R>, delimiter: Parser<D, any, any>): Parser<D, R, {R}>
@@ -109,6 +117,17 @@ local record comb
 	
 	-- Brain too small for this one
 	-- binary: function<D, F, T, O>(parser: Parser<D, F | O, T>, precDef: {{Parser<D, T, O>}}): 
+	
+	u8: Parser<string, any, integer>
+	i8: Parser<string, any, integer>
+	u16le: Parser<string, any, integer>
+	i16le: Parser<string, any, integer>
+	u16be: Parser<string, any, integer>
+	i16be: Parser<string, any, integer>
+	u32le: Parser<string, any, integer>
+	i32le: Parser<string, any, integer>
+	u32be: Parser<string, any, integer>
+	i32be: Parser<string, any, integer>
 	
 	digit: Parser<string, any, string>
 	digits: Parser<string, any, string>

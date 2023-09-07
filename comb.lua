@@ -16,7 +16,15 @@ function Parser.new(transformer)
 end
 
 function Parser:run(state)
-	return self._transformer(ltable.clone(state))
+	local result = state.result
+	result = type(result) == 'table' and ltable.clone(result) or result
+	local copy = {
+		source = state.source,
+		index = state.index,
+		data = state.data,
+		result = result,
+	}
+	return self._transformer(copy)
 end
 
 function Parser:__call(state)
@@ -55,6 +63,19 @@ function Parser:parseFile(path)
 		return nil, err
 	end
 	return self:parseData(data, path)
+end
+
+function Parser:nextPass(nextParser)
+	return Parser.new(function(state)
+		local newState, err = self(state)
+		if not newState then
+			return nil, err
+		end
+		newState.data = newState.result
+		newState.index = 1
+		newState.result = nil
+		return nextParser(newState)
+	end)
 end
 
 function Parser:__add(other)
@@ -140,6 +161,17 @@ function Parser:noConsume()
 	end)
 end
 
+function Parser:peek()
+	return Parser.new(function(state)
+		local newState, err = self(state)
+		if not newState then
+			return nil, err
+		end
+		newState.index = state.index
+		return newState
+	end)
+end
+
 function Parser:atLeast(num)
 	return Parser.new(function(state)
 		local results = {}
@@ -189,6 +221,37 @@ function Parser:atMost(num)
 	end)
 end
 
+function Parser:exactly(num)
+	return Parser.new(function(state)
+		local results = {}
+		local count = 0
+		local err
+		
+		for _ = 1, num do
+			local newState
+			newState, err = self(state)
+			if not newState then
+				break
+			end
+			if newState.index == state.index then
+				err = 'parser did not advance the index'
+				break
+			end
+			state = newState
+			count = count + 1
+			table.insert(results, state.result)
+		end
+		
+		if count ~= num then
+			local message = string.format('expected exactly %d matches, got %d; %s', num, count, err)
+			return nil, comb.error(state, message)
+		end
+		
+		state.result = results
+		return state
+	end)
+end
+
 function Parser:opposite(message)
 	return Parser.new(function(state)
 		local newState, _ = self(state)
@@ -205,6 +268,21 @@ function Parser:tag(name)
 			tag = name,
 			value = result,
 		}
+	end)
+end
+
+function Parser:tagWithIndex(name)
+	return Parser.new(function(state)
+		local newState, err = self(state)
+		if not newState then
+			return nil, err
+		end
+		newState.result = {
+			tag = name,
+			index = state.index,
+			value = newState.result,
+		}
+		return newState
 	end)
 end
 
@@ -377,10 +455,12 @@ function comb.literal(str)
 	end)
 end
 
-function comb.pattern(str)
+function comb.pattern(pat)
+	local errorMessage = 'did not match pattern ' .. lstring.quote(pat)
+	pat = pat:gsub('^%^?', '^', 1)
 	return Parser.new(function(state)
 		local data, index = state.data, state.index
-		local start, stop, captures = common.packCaptures(data:find(str:gsub('^%^?', '^', 1), index))
+		local start, stop, captures = common.packCaptures(data:find(pat, index))
 		if start then
 			captures.n = nil
 			local match = data:sub(start, stop)
@@ -392,7 +472,7 @@ function comb.pattern(str)
 			return state
 		end
 		
-		return nil, comb.error(state, 'did not match pattern ' .. lstring.quote(str))
+		return nil, comb.error(state, errorMessage)
 	end)
 end
 
@@ -527,6 +607,90 @@ function comb.binary(atom, precDef)
 		return maybe_binary(state, 0)
 	end)
 end
+
+local function byteParser(errorMessage, getValueAndOffset)
+	return Parser.new(function(state)
+		local value, offset = getValueAndOffset(state)
+		if value then
+			state.index = state.index + offset
+			state.result = value
+			return state
+		end
+		return nil, comb.error(state, errorMessage)
+	end)
+end
+
+comb.u8 = byteParser('did not match unsigned byte', function(state)
+	return state.data:byte(state.index), 1
+end)
+comb.i8 = byteParser('did not match signed byte', function(state)
+	local value = state.data:byte(state.index)
+	return value and value >= 128 and value - 256 or value, 1
+end)
+
+comb.u16le = byteParser('did not match uint16', function(state)
+	local a, b = state.data:byte(state.index, state.index + 1)
+	if a and b then
+		return a + b * (2 ^ 8), 2
+	end
+	return nil
+end)
+comb.i16le = byteParser('did not match int16', function(state)
+	local a, b = state.data:byte(state.index, state.index + 1)
+	if a and b then
+		local value = a + b * (2 ^ 8)
+		return value >= (2 ^ 15) and value - 2 ^ 16 or value, 2
+	end
+	return nil
+end)
+
+comb.u16be = byteParser('did not match uint16', function(state)
+	local a, b = state.data:byte(state.index, state.index + 1)
+	if a and b then
+		return a * (2 ^ 8) + b, 2
+	end
+	return nil
+end)
+comb.i16be = byteParser('did not match int16', function(state)
+	local a, b = state.data:byte(state.index, state.index + 1)
+	if a and b then
+		local value = a * (2 ^ 8) + b
+		return value >= (2 ^ 15) and value - 2 ^ 16 or value, 2
+	end
+	return nil
+end)
+
+comb.u32le = byteParser('did not match uint32', function(state)
+	local a, b, c, d = state.data:byte(state.index, state.index + 3)
+	if a and b and c and d then
+		return a + b * (2 ^ 8) + c * (2 ^ 16) + d * (2 ^ 24), 4
+	end
+	return nil
+end)
+comb.i32le = byteParser('did not match int32', function(state)
+	local a, b, c, d = state.data:byte(state.index, state.index + 3)
+	if a and b and c and d then
+		local value = a + b * (2 ^ 8) + c * (2 ^ 16) + d * (2 ^ 24)
+		return value >= (2 ^ 31) and value - 2 ^ 32 or value, 4
+	end
+	return nil
+end)
+
+comb.u32be = byteParser('did not match uint32', function(state)
+	local a, b, c, d = state.data:byte(state.index, state.index + 3)
+	if a and b and c and d then
+		return a * (2 ^ 24) + b * (2 ^ 16) + c * (2 ^ 8) + d, 4
+	end
+	return nil
+end)
+comb.i32be = byteParser('did not match int32', function(state)
+	local a, b, c, d = state.data:byte(state.index, state.index + 3)
+	if a and b and c and d then
+		local value = a * (2 ^ 24) + b * (2 ^ 16) + c * (2 ^ 8) + d
+		return value >= (2 ^ 31) and value - 2 ^ 32 or value, 4
+	end
+	return nil
+end)
 
 comb.digit = comb.pattern('%d'):index('match')
 comb.digit = comb.digit % function(err)

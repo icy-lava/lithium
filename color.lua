@@ -44,42 +44,62 @@ local function oklab2oklch(L, a, b, alpha)
 	return L, (a ^ 2 + b ^ 2) ^ 0.5, atan(b, a), alpha
 end
 
+local function oklch2oklab(L, c, h, alpha)
+	return L, cos(h) * c, sin(h) * c, alpha
+end
+
 function color.oklab(l, a, b, alpha)
 	assert(l and a and b)
-	return setmetatable({l = l, a = a, b = b, alpha = alpha or 1}, color)
+	return color.oklch(oklab2oklch(l, a, b, alpha))
+end
+
+function color.oklch(l, c, h, alpha)
+	assert(l and c and h)
+	return setmetatable({l, c, rad(h), alpha or 1}, color)
 end
 
 function color.rgb(r, g, b, alpha)
 	assert(r and g and b)
-	local obj = {}
-	obj.l, obj.a, obj.b, obj.alpha = rgb2oklab(r, g, b, alpha or 1)
-	return setmetatable(obj, color)
+	return color.oklab(rgb2oklab(r, g, b, alpha or 1))
+end
+
+function color.fromLove()
+	return color.rgb(love.graphics.getColor()) -- luacheck: ignore 113
+end
+
+function color.fromLoveBackground()
+	return color.rgb(love.graphics.getBackgroundColor()) -- luacheck: ignore 113
 end
 
 function color:__tostring()
-	local l, c, h = oklab2oklch(self.l, self.a, self.b)
 	return format(
 		'oklch {lightness = %d%%, chroma = %0.2f, hue = %d deg, alpha = %d%%}',
-		l * 100 + 0.5, c, deg(h) + 0.5, self.alpha * 100 + 0.5
+		self.l * 100 + 0.5, self.c, deg(self.h) + 0.5, self.alpha * 100 + 0.5
 	)
 end
 
 function color:lerp(t, other)
+	local l1, a1, b1, alpha1 = oklch2oklab(self[1], self[2], self[3], self[4])
+	local l2, a2, b2, alpha2 = oklch2oklab(other[1], other[2], other[3], other[4])
 	local m = 1 - t
 	return color.oklab(
-		self.l * m + other.l * t,
-		self.a * m + other.a * t,
-		self.b * m + other.b * t,
-		self.alpha * m + other.alpha * t
+		l1 * m + l2 * t,
+		a1 * m + a2 * t,
+		b1 * m + b2 * t,
+		alpha1 * m + alpha2 * t
 	)
 end
 
 function color:splitOklab()
-	return self.l, self.a, self.b, self.alpha
+	return oklch2oklab(self[1], self[2], self[3], self[4])
+end
+
+function color:splitOklch()
+	return self[1], self[2], self[3], self[4]
 end
 
 function color:splitRGB()
-	return oklab2rgb(self.l, self.a, self.b, self.alpha)
+	return oklab2rgb(oklch2oklab(self[1], self[2], self[3], self[4]))
 end
 
 function color:array()
@@ -87,56 +107,70 @@ function color:array()
 end
 
 function color:withAlpha(alpha)
-	return color.oklab(self.l, self.a, self.b, alpha)
+	return color.oklch(self[1], self[2], self[3], alpha)
 end
 
 function color:addedAlpha(alpha)
-	return color.oklab(self.l, self.a, self.b, self.alpha + alpha)
+	return color.oklch(self[1], self[2], self[3], max(0, self[4] + alpha))
+end
+
+function color:addmulAlpha(add, mul)
+	add, mul = (add or 0), (mul or 1)
+	return color.oklch(self[1], self[2], self[3], max(0, self[4] * mul + add))
 end
 
 function color:withLightness(lightness)
-	return color.oklab(lightness, self.a, self.b, self.alpha)
+	return color.oklch(lightness, self[2], self[3], self[4])
 end
 
 function color:addedLightness(lightness)
-	return color.oklab(self.l + lightness, self.a, self.b, self.alpha)
+	return color.oklch(max(0, self[1] + lightness), self[2], self[3], self[4])
+end
+
+function color:addmulLightness(add, mul)
+	add, mul = (add or 0), (mul or 1)
+	return color.oklch(max(0, self[1] * mul + add), self[2], self[3], self[4])
 end
 
 function color:withChroma(c)
-	local actual = (self.a ^ 2 + self.b ^ 2) ^ 0.5
-	if actual > 0 then
-		local mul = c / actual
-		return color.oklab(self.l, self.a * mul, self.b * mul, self.alpha)
-	end
-	return color.oklab(self.l, c, 0, self.alpha)
+	return color.oklch(self[1], c, self[3], self[4])
 end
 
 function color:addedChroma(c)
-	local actual = (self.a ^ 2 + self.b ^ 2) ^ 0.5
-	if actual > 0 then
-		local mul = max(0, actual + c) / actual
-		return color.oklab(self.l, self.a * mul, self.b * mul, self.alpha)
-	end
-	return color.oklab(self.l, max(0, c), 0, self.alpha)
+	return color.oklch(self[1], max(0, self[2] + c), self[3], self[4])
+end
+
+function color:addmulChroma(add, mul)
+	add, mul = (add or 0), (mul or 1)
+	return color.oklch(self[1], max(0, self[2] * mul + add), self[3], self[4])
 end
 
 function color:withHue(h)
-	local c = (self.a ^ 2 + self.b ^ 2) ^ 0.5
-	return color.oklab(self.l, cos(h) * c, sin(h) * c, self.alpha)
+	return color.oklch(self[1], self[2], rad(h), self[4])
 end
 
 function color:addedHue(h)
-	local c = (self.a ^ 2 + self.b ^ 2) ^ 0.5
-	h = atan(self.b, self.a) + h
-	return color.oklab(self.l, cos(h) * c, sin(h) * c, self.alpha)
+	return color.oklch(self[1], self[2], self[3] + rad(h), self[4])
 end
 
-function color:withHueDegrees(h)
-	return self:withHue(rad(h))
+function color:withHueRadians(h)
+	return color.oklch(self[1], self[2], h, self[4])
 end
 
-function color:addedHueDegrees(h)
-	return self:addedHue(rad(h))
+function color:addedHueRadians(h)
+	return color.oklch(self[1], self[2], self[3] + h, self[4])
+end
+
+function color:love()
+	love.graphics.setColor(self:splitRGB()) -- luacheck: ignore 113
+end
+
+function color:loveBackground()
+	love.graphics.setBackgroundColor(self:splitRGB()) -- luacheck: ignore 113
+end
+
+function color:loveClear()
+	love.graphics.clear(self:splitRGB()) -- luacheck: ignore 113
 end
 
 return color

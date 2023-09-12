@@ -5,6 +5,7 @@ local atan = math.atan2 or math.atan
 local sin, cos = math.sin, math.cos
 local max = math.max
 local deg = math.deg
+local rad = math.rad
 local format = string.format
 
 local function rgb2oklab(r, g, b, alpha)
@@ -131,11 +132,11 @@ function color:addedHue(h)
 end
 
 function color:withHueDegrees(h)
-	return self:withHue(deg(h))
+	return self:withHue(rad(h))
 end
 
 function color:addedHueDegrees(h)
-	return self:addedHue(deg(h))
+	return self:addedHue(rad(h))
 end
 
 return color

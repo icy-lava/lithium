@@ -209,8 +209,9 @@ end
 
 common.quote = common.singleToMulti(quote)
 
+local indentString = '    '
 local function indentation(indent)
-	return ('    '):rep(indent)
+	return indentString:rep(indent)
 end
 
 local function pretty(value, indent, refmap)
@@ -246,11 +247,28 @@ local function pretty(value, indent, refmap)
 		end
 		
 		if isArray and count == maxI then
+			do
+				indent = indent + 1
+				local str = {'{\n'}
+				for _, v in ipairs(value) do
+					table.insert(str, format('%s%s,\n', indentation(indent), pretty(v, indent, refmap)))
+				end
+				indent = indent - 1
+				table.insert(str, indentation(indent))
+				table.insert(str, '}')
+				
+				local final = table.concat(str)
+				local indentCharCount = ((indent + 1) * #indentString * count)
+				if #final - indentCharCount > 40 then -- If it's too short we just wanna do 1 line
+					return final
+				end
+			end
+			
 			local str = {}
 			for _, v in ipairs(value) do
 				table.insert(str, pretty(v, indent, refmap))
 			end
-			return format('{%s}', table.concat(str, ', '))
+			return format('{ %s }', table.concat(str, ', '))
 		end
 		
 		indent = indent + 1

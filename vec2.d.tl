@@ -8,7 +8,9 @@ local record vec2
 	
 	new: function(x: number, y: number): vec2
 	fromPolar: function(angle: number, length: number): vec2
-	fromLove: function(): vec2
+	fromLoveMouse: function(): vec2
+	fromLoveDimensions: function(): vec2
+	fromLoveMode: function(): vec2
 	metamethod __call: function(self: vec2, x: number, y: number): vec2
 	
 	metamethod __add: function(self: vec2, other: vec2): vec2
@@ -33,12 +35,19 @@ local record vec2
 	delta: function(self: vec2, other: vec2): vec2
 	lerp: function(self: vec2, t: number, other: vec2): vec2
 	split: function(self: vec2): number, number
+	min: function(self: vec2, ...: vec2): vec2
+	minCoord: function(self: vec2, ...: vec2): number
+	max: function(self: vec2, ...: vec2): vec2
+	maxCoord: function(self: vec2, ...: vec2): number
+	bounds: function(self: vec2, ...: vec2): vec2, vec2
 	perp: function(self: vec2): vec2
 	polar: function(self: vec2): number, number
 	rotate: function(self: vec2, delta: number)
 	rotated: function(self: vec2, delta: number): vec2
 	
-	toLove: function(self: vec2)
+	loveMouse: function(self: vec2)
+	loveMode: function(self: vec2)
+	
 	getAngle: function(self: vec2): number
 	setAngle: function(self: vec2, angle: number)
 	getLength: function(self: vec2): number

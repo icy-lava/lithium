@@ -1,4 +1,6 @@
 local format = string.format
+local min = math.min
+local max = math.max
 local abs = math.abs
 local atan2 = math.atan2 or math.atan
 local cos = math.cos
@@ -18,8 +20,17 @@ function vec2.fromPolar(angle, length)
 	return vec2.new(cos(angle) * length, sin(angle) * length)
 end
 
-function vec2.fromLove()
+function vec2.fromLoveMouse()
 	return vec2.new(love.mouse.getPosition())
+end
+
+function vec2.fromLoveDimensions()
+	return vec2.new(love.graphics.getDimensions())
+end
+
+function vec2.fromLoveMode()
+	local width, height = love.window.getMode()
+	return vec2.new(width, height)
 end
 
 function vec2:__add(other)
@@ -115,6 +126,43 @@ function vec2:split()
 	return self.x, self.y
 end
 
+function vec2:min(...)
+	local minX, minY = self.x, self.y
+	for i = 1, select('#', ...) do
+		local other = select(i, ...)
+		minX, minY = min(minX, other.x), min(minY, other.y)
+	end
+	return vec2.new(minX, minY)
+end
+
+function vec2:minCoord()
+	return min(self.x, self.y)
+end
+
+function vec2:max(...)
+	local maxX, maxY = self.x, self.y
+	for i = 1, select('#', ...) do
+		local other = select(i, ...)
+		maxX, maxY = max(maxX, other.x), max(maxY, other.y)
+	end
+	return vec2.new(maxX, maxY)
+end
+
+function vec2:maxCoord()
+	return max(self.x, self.y)
+end
+
+function vec2:bounds(...)
+	local minX, minY, maxX, maxY = self.x, self.y, self.x, self.y
+	for i = 1, select('#', ...) do
+		local other = select(i, ...)
+		local ox, oy = other.x, other.y
+		minX, minY = min(minX, ox), min(minY, oy)
+		maxX, maxY = max(maxX, ox), max(maxY, oy)
+	end
+	return vec2.new(minX, minY), vec2.new(maxX, maxY)
+end
+
 function vec2:perp()
 	return vec2.new(-self.y, self.x)
 end
@@ -133,8 +181,12 @@ function vec2:rotated(delta)
 	return vec2.new(cos(angle) * length, sin(angle) * length)
 end
 
-function vec2:love()
+function vec2:loveMouse()
 	love.mouse.setPosition(self.x, self.y)
+end
+
+function vec2:loveMode()
+	love.window.updateMode(self.x, self.y, {})
 end
 
 function vec2:getAngle()

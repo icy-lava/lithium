@@ -73,8 +73,8 @@ end
 
 function color:__tostring()
 	return format(
-		'oklch {lightness = %d%%, chroma = %0.2f, hue = %d deg, alpha = %d%%}',
-		self.l * 100 + 0.5, self.c, deg(self.h) + 0.5, self.alpha * 100 + 0.5
+		'oklch { lightness = %d%%, chroma = %0.2f, hue = %d deg, alpha = %d%% }',
+		self[1] * 100 + 0.5, self[2], deg(self[3]), self[4] * 100 + 0.5
 	)
 end
 

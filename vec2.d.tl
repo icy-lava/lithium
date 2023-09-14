@@ -1,6 +1,6 @@
 local record vec2
-	{number}
-	
+	x: number
+	y: number
 	length: number
 	length2: number
 	normal: vec2

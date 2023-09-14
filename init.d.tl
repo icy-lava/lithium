@@ -11,7 +11,9 @@ return {
 	lexer = require 'lithium.lexer',
 	math = require 'lithium.math',
 	signal = require 'lithium.signal',
+	spline = require 'lithium.spline',
 	string = require 'lithium.string',
 	system = require 'lithium.system',
 	table = require 'lithium.table',
+	vec2 = require 'lithium.vec2',
 }

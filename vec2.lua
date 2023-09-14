@@ -255,7 +255,7 @@ local setters = {
 	length2 = vec2.setLength2,
 }
 
-function vec2:__setindex(key, value)
+function vec2:__newindex(key, value)
 	local setter = setters[key]
 	if setter then
 		return setter(self, value)

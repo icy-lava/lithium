@@ -13,17 +13,21 @@ local record vec2
 	fromLoveMode: function(): vec2
 	metamethod __call: function(self: vec2, x: number, y: number): vec2
 	
-	metamethod __add: function(self: vec2, other: vec2): vec2
-	metamethod __sub: function(self: vec2, other: vec2): vec2
-	metamethod __mul: function(self: vec2 | number, other: vec2 | number): vec2
-	metamethod __div: function(self: vec2, other: vec2 | number): vec2
-	metamethod __mod: function(self: vec2, other: vec2 | number): vec2
-	metamethod __pow: function(self: vec2, other: vec2 | number): vec2
-	metamethod __unm: function(self: vec2): vec2
-	metamethod __eq: function(self: vec2, other: vec2): boolean
-	metamethod __lt: function(self: vec2, other: vec2): boolean
-	metamethod __le: function(self: vec2, other: vec2): boolean
-	metamethod __tostring: function(self: vec2): string
+	metamethod __add: function(self_: vec2, other: vec2): vec2
+	metamethod __sub: function(self_: vec2, other: vec2): vec2
+	metamethod __mul: function(self_: vec2 | number, other: vec2 | number): vec2
+	metamethod __mul: function(self_: vec2 | integer, other: vec2 | integer): vec2
+	metamethod __div: function(self_: vec2, other: vec2 | number): vec2
+	metamethod __div: function(self_: vec2, other: vec2 | integer): vec2
+	metamethod __mod: function(self_: vec2, other: vec2 | number): vec2
+	metamethod __mod: function(self_: vec2, other: vec2 | integer): vec2
+	metamethod __pow: function(self_: vec2, other: vec2 | number): vec2
+	metamethod __pow: function(self_: vec2, other: vec2 | integer): vec2
+	metamethod __unm: function(self_: vec2): vec2
+	metamethod __eq: function(self_: vec2, other: vec2): boolean
+	metamethod __lt: function(self_: vec2, other: vec2): boolean
+	metamethod __le: function(self_: vec2, other: vec2): boolean
+	metamethod __tostring: function(self_: vec2): string
 	
 	set: function(self: vec2, x: number, y: number)
 	set: function(self: vec2, point: vec2)

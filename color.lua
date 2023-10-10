@@ -55,7 +55,7 @@ end
 
 function color.oklch(l, c, h, alpha)
 	assert(l and c and h)
-	return setmetatable({l, c, rad(h), alpha or 1}, color)
+	return setmetatable({l, c, h, alpha or 1}, color)
 end
 
 function color.rgb(r, g, b, alpha)
